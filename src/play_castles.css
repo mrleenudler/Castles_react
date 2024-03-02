@@ -1,0 +1,202 @@
+.toast {
+    position: fixed;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%) scale(1.3) ;
+    animation: slideIn 0.8s ease-out forwards;
+    background-color: #f0ad4e;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);/* er dette fornuftig farge-koding?*/
+    z-index: 1000;
+  }
+.toast.hide { /* Ikke implementert enda. (tror jeg ) */
+    animation: slideOut 0.5s ease-in forwards;
+  }
+  
+    @keyframes slideIn {
+    from {
+        transform: translateY(0); /* Start off-screen, below the view */
+        opacity: 0;
+    }
+    to {
+        transform: translateY(20%); /* End at its final position */
+        opacity: 1;
+    }
+    }   
+    @keyframes slideOut {
+        from {
+          transform: translateY(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateY(100%);
+          opacity: 0;
+        }
+      }
+      
+/* Style for each score item */
+.score-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 10px;
+}
+
+/* Style for the container of scores */
+.scores-container {
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    overflow: auto; /* Ensure content can scroll if it overflows (skal ligge i modal-content?) */
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+  }
+  
+.modal-content {
+    /*position: relative;  Needed for absolute positioning context (legger bonusen foran rommet?)*/
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    /*overflow: auto;  To handle scrolling if the content overflows (I hvilket element bør denne ligge, egentlig?)*/
+  }
+  
+/* Til bonus-innhold*/
+.dynamic-content-area {
+  /*position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;*/
+  padding: 10px; /* Adjust based on your design */
+  background-color: rgba(255, 255, 255); /* Slightly transparent or match modal background */
+  /*z-index: 10; /* Ensure it overlays other content */
+  /*margin: 0 auto; /* Center the bonus content horizontally */
+  /*width: auto; /* Or you can specify a max-width if needed */
+  /*max-width: 40.4%; /* Adjust this value based on your design needs */
+  border-radius: 5px; /* Optional: Adds rounded corners to the bonus content area */
+  margin-bottom: 10px; /* Adjust spacing to ensure visual connection without large gaps */
+  /*border-bottom: 2px solid #EEE; /* Optional: a subtle border or shadow can help blend or define the area without strong separation */
+}
+
+/* Style for the Bonus add-on to the Modal */
+.bonus-add-on {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  font-size: 3vh;
+  font-weight: bold;
+ /*width: 100%  unødvendig? */  
+}
+
+/* Style for the Bonus add-on to the Modal */
+.radio-buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 2vh;
+  font-weight: bold;
+  width: 100%;
+}
+
+.radio-alignment {
+  display: flex;
+  justify-content: space-between;
+}
+
+.radio-category-text {
+  color:  rgba(180, 180, 180)
+}
+
+/* Style for the container of room images (Hører disse til roomsArray?)*/
+.room-container {
+  display: flex;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+/* Style for each room image wrapper */
+.room-image-wrapper {
+  margin-left: 10px;
+  display: inline-block;
+}
+
+/* Style for the button containing room images */
+.room-button {
+  padding: 0;
+  border: none;
+  background: none;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.setup-players {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px; /* Adds space between each form element */
+  height: 80vh;
+}
+
+.setup-players input[type="text"]{
+  width: 20%; /* Adjust input width */
+  padding: 8px 12px; /* Padding inside the inputs for better text visibility */
+  margin-top: 5px; /* Space above inputs */
+  border: 1px solid #ccc; /* Border color */
+  border-radius: 4px; /* Rounded corners */
+}
+
+.setup-players  select {
+  width: 25%; /* Adjust input width */
+  padding: 8px 12px; /* Padding inside the inputs for better text visibility */
+  margin-top: 5px; /* Space above inputs */
+  border: 1px solid #ccc; /* Border color */
+  border-radius: 4px; /* Rounded corners */
+}
+
+/* Styling for labels to improve readability */
+.setup-players label {
+  font-weight: bold;
+  margin-right: 10px; /* Space between label and input */
+  margin-left: 10px;
+}
+
+/* Enhance the appearance of the submit button */
+.start-game-button {
+  background-color: #4CAF50; /* Green background */
+  color: white; /* White text */
+  padding: 8px 20px; /* Padding around text */
+  border: none; /* No border */
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  font-size: 2vh;
+  margin-left: 30px;
+}
+
+.start-game-button:hover {
+  background-color: #45a049; /* Darker shade of green on hover */
+}
+
+.start-game-button:disabled {
+  background-color: #A9A9A9; /* Grey background */
+  cursor: not-allowed; /* Change cursor to indicate the button is disabled */
+}
+

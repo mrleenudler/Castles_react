@@ -1,0 +1,156 @@
+Gnr. 219 Bnr. 145 Snr. 5 Ideell andel 1/1
+
+_______________________________________________________________________________________________
+IMPLEMENTERES NÅ
+
+
+-> useRef lager foreløpig problemer for castleRooms.find
+
+-> Sett castleRooms som state-variable eller ref
+=> Fjerne dropdowns for rom-egenskaper som ikke eksisterer; Kanskje ikke vise dem før de er bekreftet??
+=> Fjerne rom fra castlesRooms når de legges til player.roomsArray
+	.filter eller .reduce for å sortere ut aktuelle størrelser og bonuser (erstatt størrelsesmatrisen)	
+-> Stairs og corridors må finnes i riktig antall (aktuelt med en counter?)
+
+-> sett fokus på StartGame button når aktiv
+
+-> Test at alle rommene dislplayer korrekt ved å loope gjennom "id"
+	-> Rett opp i "id" (de er ikke i rekkefølge eller unike)
+-> Kontroller at bonus fungerer for Downstairs og Utility rom med bare 1 exit.
+-> Vurder om rommene skal stå vertikalt
+
+-> Juster imageSize matrisen (eventuelt legg til som property i rommet)
+-> Endre navnet på Modal til handleRoomModal eller noe slikt.
+"What is semantic html?"
+"If the displayed bonus depends on certain conditions, make sure the content (text, image src, alt text) is managed dynamically, possibly by passing them as props or using state/context for more complex scenarios."
+-> Alerts kan trigges av Modal-OK-knappen (eller av +/- knappene) (alert for increased openExits & decreased bonuses)
+
+=> "Click rooms that gain bonuses or penalties or have exits closed" 
+-> html placeholder="someString"
+=> scoresArray må henge visuelt sammen med roomsArray
+-> Legg til bedre bilder for rom og bonuser
+-> roomsArray[0] = Starting_room_color må legges til ved oppstart, og scoresArray[0] = 0.
+-> setClickedRoom(player.roomsArray.indexOf()) feiler hvis det er flere ulike rooms i arrayet
+	->Fix: Kun unike rooms kan legges til (hører til dropdown-improvement)
+	-> (Alternativ fix: endre algoritmen for å finne riktig rom; er det i det hele tatt mulig?)
+-> "Adjust exits and room bonuses" må displayes på en bedre måte -> Toast
+-> "play_castles.jsx:971 Warning: Each child in a list should have a unique "key" prop."
+-> "Hundings_hut" displayes ikke
+
+
+________________________________________________________________________________________________
+IMPLEMENTERES SENERE
+
+-> Sjekk om Useeffect for 'esc' key trenger onClose listener
+-> poengene i scoresArray kan plasseres oppå rommene i roomsArray (Bedre for mobil)
+-> setActivePlayer bruker ikke prevPlayers
+-> Kan playerBackgroundColor settes et annet sted? Krever flere tabeller for å unngå oppstykking(tror jeg)
+-> Integreres med Flask for å lagre spill og samle statistikk (your_games/average_game/best_player)
+-> Focus på 'Category' for enkel manipulering med keyboard (kan tab-rekkefølge også settes?)
+-> revisit livingRoomBonus: Er 'disable' satisfactory?
+-> Lage en usedRooms array som hindrer at et unikt rom legges flere ganger. (Kontroller at det funker for corridor rooms)
+-> Implementere roomTypeEmpty
+------> Jobber med functional updates (Ferdig med setPlayers, sjekk setActivePlayer)
+Skaler bildene med logikk -> Sjekk skalering og juster etter behov
+-> Bildene kan skaleres etter total bredde på skjermen? Og reduseres med antall rom? Snu lange rom?
+-> Kanskje jeg skal lage en <table> pr spiller?
+-> Undersøk om setActivePlayers kan forenkles
+-> Indekser er inkludert i diverse funksjoner, de trengs kanskje ikke skrives eksplisitt.
+-> Må kunne velge pass(EndTurn) (ta penger og ikke velge rom -> Bør gi en advarsel-popup)
+-> activateRoomBonus-Downstairs har en dobbel <div> - undersøk
+-> Undo funksjonalitet for addRoom og endTurn
+-> Undersøk relasjonen meoom activePlayer og players[clickedPlayerIndex]
+
+-> Undersøk isOpen vs isModalOpen
+-> handleChangeCategory -> useEffect[activePlayer] -> useEffect[activeRoom]
+=> Implementer functional updates: setVariable(prevVariable => newVariable)
+-> Legg til kode for unike spillere i players_form.html -> Kan bruke farger; Implementer endring fra (active)player.name til (active)player.color
+-> Modal content må ikke være transparent -> Og heller ikke skjule scoresArray (?) -> Eventuelt displaye scoresArray[index] i modal
+-> handleSubmit er sannsynligvis redundant
+=> Separation of concerns: Prøv å skille ut ulike elementer fra koden, 
+==>spesielt koden i Modal kan gå inn i hoveddelen, eller kanskje en egen blokk?
+=> Rommene strekker seg horisontalt ut av skjermen. Ønsker jeg å scrolle horisontalt eller vertikalt? (vertikalt impliserer 2 linjer med roomsArray+scoresArray)
+=> Roter rommene og reduser avstanden mellom dem
+-> Vil at room-bonus ikke flytter resten av modalen.
+-> Disable buttons for roomsArray før rom er lagt til (For å ikke føkke opp med Food room bonusen, reimplementeres senere av test-hensyn)
+-> <button 
+                          disabled={player.name !== activePlayer.name || !player.roomAdded} // Legges til for å kreve nytt rom før bonuser.
+
+Vil at score lagrer alle rundene til senere
+-> Undo turn funksjon?
+-> openExits counter i bildene for rom; green checkmark for 0 open exits
+-> Bedre alt= tekster for alle elemneter
+-> Rett ut lange linjer for bedre lesbarhet
+-> Er activePlayer relevant lengre? kan jeg heller bruke players[clickedPlayerIndex].roomsArray[clickedRoomIndex].* ? (Tror den er viktig før rom klikkes.)
+-> what is the custom for snake case and camel case in react
+
+toast slide-out er ikke implementert. mer jobb enn forventet. Vurder å fikse senere. 
+Toasten kan plasseres i en reactDOM.portal -> implementeres senere
+
+Justere listen over tilgjengelige størrelser og bonuser på rommene --> Hører til romhåndteringern
+Brukte rom fjernes fra valg
+
+F5/reload må ikke slette gamet.
+Legg til bonus i json -> Eventuelt fjerne availableBonuses (kontroller for identiske rom)
+"Category" og "Bonus" skal være unselectable (hvor viktig er det?) (bruk html-tag 'placeholder')
+
+Flytt all CSS-koden over i egen fil.
+Spør etter ytterlige forbedringer, spesielt elementer som avverger potesielt dårlig formatering (eks overflow: auto) Også: fjern unødvendig formatering (best å ikke introdusere den?)
+________________________________________________________________________________________
+KJEKT Å HA
+-> Outdoor-250-Utility er skeiv.
+-> Skille mellom ellers like rom(?) -> Tror ikke jeg vil det, vil degradere UX.
+-> Se gjennom Z-indekser og gjør bevisste valg.
+-> Sjekk at det er ; over alt der det skal være
+-> Se gjennom logikken til activePlayer
+=> Trenger jeg en egen turnScore useEffect? [currentRoom, roomBonuses, completionBonuses]
+=> Vurder om activePlayer er redundant med functional updates (tror den er nødvendig)
+-> Har jeg to indexer for activePlayer nå?
+Også, når jeg saver, før jeg reloader, printes rommene to ganger(samsvarer med console) 
+	-> Sannsynligvis en artifact av test-rom metoden..
+	-> Mye kode kjøres dobbelt (vises i console.log statements)
+===> Kan jeg bruke type="number" for exits? (Tror det blir vanskelig med alert da.)
+-> Oversikt over rom som ikke er spilt?
+-> Mye av koden kjøres to ganger ved oppstart. Hvorfor det?
+-> Warning pga playCastles oppdateres mens Modal er åpen. Fiks: Move state updated to event handlers
+	Ensure that all state updates resulting from interactions within the Modal are triggered by user actions (like button clicks) rather than as a direct consequence of rendering.
+	Review Conditional Rendering: If rendering of elements within Modal is conditionally based on state from PlayCastles, ensure this does not directly cause state updates. Any rendering logic that leads to state changes should be re-evaluated for potential side effects.
+-> Se gjennom useEffect, kan noen fjernes?
+-> Reflekter over om completionBonus funksjonene kan samles i én
+-> Implementer Git
+-> Use React Developer Tools' Profiler to monitor your application's performance. 
+-> Revisit 'key' properties
+-> Skriv bedre kommentarer til koden
+
+-> Statistikk over soverom-bonusen: Når et soverom er fullført, hvor mange tomt-room-deck-poeng får spilleren? Hvert antall soverom må få sitt eget gjennomsnitt.
+-> Modifisere manifest.json
+
+
+
+-> For å dele opp castles-bildene
+OpenCV and Python: For a more DIY approach, 
+you could use a computer vision library like OpenCV 
+in conjunction with Python to detect and segment the individual pieces. 
+This would require some programming knowledge to implement.
+
+
+__________________________________________________________________________
+USEFUL INFO
+-> Lær mer om innholdet i Modal
+Bruke useEffect for å lytte tli endringer
+->Enten [players] eller [bonuses(ny state variable)]
+->Kan jeg lytte til en bestemt player også? 
+	Kan lage en state variable playerName som jeg også lytter til.
+	Får jeg sync issues hvis jeg skal oppdatere både playerName og player.selectedRoomSize i samme funksjon?
+	-> Tenker det skal gå bra, det betyr bare at useEffect kjøres to ganger, men ikke at de er avhengige av hverandre.
+->kan jeg oppdatere alle player.availableBonuses i useEffect? Kanskje det er lettest og best?
+*Viktig at bonuses oppdateres før setPlayers()
+	-> Trenger bonuses som state variable
+*Kan jeg ta inn en variabel playerName i useEffect?
+	-> Må i tilfelle sette den som en state varaiable som jeg lytter til.
+**Det er mer å lære om hvordan setVariable funker
+
+** Lær mer om useEffect og async coding i JS.
+
+"Prettier" kan hjelpe med formatering av koden.
+

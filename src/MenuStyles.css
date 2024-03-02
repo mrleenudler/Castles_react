@@ -1,0 +1,10 @@
+.menu .submenu {
+    display: none;
+  }
+  
+  .menu-item:hover .submenu {
+    display: block;
+  }
+  
+  /* Additional styling */
+  

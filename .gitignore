@@ -1,0 +1,55 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+src/play_castles_backup.jsx
+src/play_castles_backup2.jsx
+src/play_castles_backup3.jsx
+src/play_castles_backup4.jsx
+src/play_castles_backup5.jsx
+src/play_castles_backup6.jsx
+src/play_castles_backup7.jsx
+src/play_castles_backup8_aligned.jsx
+src/play_castles_backup8.jsx
+src/play_castles_backup9.jsx
+src/play_castles_backup10.jsx
+src/play_castles_backup11.jsx
+src/play_castles_backup12.jsx
+src/play_castles_backup13.jsx
+src/play_castles_backup14.jsx
+src/play_castles_backup15.jsx
+src/play_castles_backup16.jsx
+src/play_castles_backup17.jsx
+src/play_castles_backup18.jsx
+src/play_castles_backup19.jsx
+src/play_castles_backup20.jsx
+src/play_castles_backup21.jsx
+src/play_castles_backup22.jsx
+src/play_castles_backup23.jsx
+src/play_castles_backup24.jsx
+src/play_castles_backup25.jsx
+src/play_castles_backup26.jsx
+src/play_castles_backup27.jsx
+src/play_castles_backup28.jsx
+src/play_castles_backup29.jsx
+src/play_castles_backup30.jsx
+src/play_castles_temp.jsx
