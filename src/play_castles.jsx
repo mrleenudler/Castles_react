@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import './MenuStyles.css';
 import './play_castles.css';
-import castleRooms from './castle_rooms.json';
+import castlesRoomSupply from './castle_rooms.json';
 
 
 
@@ -25,7 +25,7 @@ class Player {
 
 function PlayCastles() {
 
-  //const castleRooms = useRef(castlesRoomSupply)
+  const castleRooms = useRef(castlesRoomSupply);
   // Direct Mutations: Be mindful when directly mutating objects or arrays referenced by refs. While useRef doesn’t cause re-renders, direct mutations bypass React's state management and can lead to harder-to-track bugs.
 
 
@@ -76,7 +76,10 @@ function PlayCastles() {
   // Debug: fjernes
   useEffect( () => {
     //const addRooms = [castleRooms.find(room => room.id === 31), castleRooms.find(room => room.id === 32), castleRooms.find(room => room.id === 33), castleRooms.find(room => room.id === 34)];
-    const addRooms = [castleRooms.find(room => room.id === 4), castleRooms.find(room => room.id === 41), castleRooms.find(room => room.id === 43), castleRooms.find(room => room.id === 31)];
+    const addRooms = [castleRooms.current.find(room => room.id === 4), 
+      castleRooms.current.find(room => room.id === 41), 
+      castleRooms.current.find(room => room.id === 43), 
+      castleRooms.current.find(room => room.id === 31)];
     //const firstRoom = castleRooms.find(room => room.id === 4); // Sleep-300-Living.jpg
     //const secondRoom = castleRooms.find(room => room.id === 41); // Outdoor-600-Outdoor.jpg
     console.log("ADD ROOMS:", ...addRooms);
@@ -91,10 +94,10 @@ function PlayCastles() {
   // Ser etter activeRoom når noe endres
   useEffect( () => {
     console.log("ActivePlayer triggered", activePlayer.name)
-    setActiveRoom(castleRooms.find(room => room.category === activePlayer.selectedRoomCategory && room.size === activePlayer.selectedRoomSize && room.bonus === activePlayer.selectedRoomBonus))
+    setActiveRoom(castleRooms.current.find(room => room.category === activePlayer.selectedRoomCategory && room.size === activePlayer.selectedRoomSize && room.bonus === activePlayer.selectedRoomBonus))
 // Tror den er 'undefined' hvis den ikke matcher noe rom. Bør kontrolleres.
     // Settes den til undefined --> trigger activeRoom == problemer?    
-    console.log("Room search:", castleRooms.find(room => room.category === activePlayer.selectedRoomCategory && room.size === activePlayer.selectedRoomSize && room.bonus === activePlayer.selectedRoomBonus));
+    console.log("Room search:", castleRooms.current.find(room => room.category === activePlayer.selectedRoomCategory && room.size === activePlayer.selectedRoomSize && room.bonus === activePlayer.selectedRoomBonus));
   }, [activePlayer]);
 
 
@@ -135,7 +138,7 @@ function PlayCastles() {
   const handleCategoryChange = (newCategory) => { 
     setPlayers(prevPlayers => prevPlayers.map(player => {
       if (player.name === activePlayer.name) {
-        const bonuses = castleRooms.filter(room => room.category === newCategory && room.size === player.selectedRoomSize).map(room => room.bonus);
+        const bonuses = castleRooms.current.filter(room => room.category === newCategory && room.size === player.selectedRoomSize).map(room => room.bonus);
         return {
           ...player,
           selectedRoomCategory: newCategory,
@@ -161,7 +164,7 @@ function PlayCastles() {
 
     setPlayers(prevPlayers => prevPlayers.map(player => {
       if (player.name === activePlayer.name) {
-        const bonuses = castleRooms.filter(room => room.category === player.selectedRoomCategory && room.size === Number(newSize)).map(room => room.bonus);
+        const bonuses = castleRooms.current.filter(room => room.category === player.selectedRoomCategory && room.size === Number(newSize)).map(room => room.bonus);
         return {
           ...player,
           selectedRoomSize: newSize,
@@ -703,11 +706,11 @@ function PlayCastles() {
       console.log(`Starting-${name}.jpg`)
       return(`Starting-${name}.jpg`);
     } else if (!bonus) { // Lag checkbox for dropdown til room name. 
-      const room = castleRooms.find(room => room.category === category && room.size === size);
+      const room = castleRooms.current.find(room => room.category === category && room.size === size);
       console.log("!bonus: ", `${room.category}-${room.size}-${room.roomName}.jpg`) ;
       return(`${room.category}-${room.size}-${room.roomName}.jpg`);
     } else {
-      const room = castleRooms.find(room => room.category === category && room.size === size && room.bonus === bonus);
+      const room = castleRooms.current.find(room => room.category === category && room.size === size && room.bonus === bonus);
       console.log("Bonus: ", `${room.category}-${room.size}-${room.bonus}-${room.roomName}.jpg`) ;
       return(`${room.category}-${room.size}-${room.bonus}-${room.roomName}.jpg`);
     };
@@ -916,8 +919,8 @@ function PlayCastles() {
       } else {
         tempColor = playerColors[`Player ${arrayOfPlayers[i] + 1}`];
       };
-      setupPlayers.push(new Player(playerNames[`Player ${arrayOfPlayers[i] + 1}`], tempColor, i, castleRooms.find(room => room.roomName === tempColor)));//, castleRooms.find(room => room.category === tempColor)
-      console.log("Setup players", `Player ${arrayOfPlayers[i] + 1} : `, playerNames[`Player ${arrayOfPlayers[i] + 1}`], tempColor, i, castleRooms.find(room => room.roomName === tempColor).roomName);
+      setupPlayers.push(new Player(playerNames[`Player ${arrayOfPlayers[i] + 1}`], tempColor, i, castleRooms.current.find(room => room.roomName === tempColor)));//, castleRooms.find(room => room.category === tempColor)
+      console.log("Setup players", `Player ${arrayOfPlayers[i] + 1} : `, playerNames[`Player ${arrayOfPlayers[i] + 1}`], tempColor, i, castleRooms.current.find(room => room.roomName === tempColor).roomName);
     };
     console.log("Final radom player order: ", randomPlayerOrder, arrayOfPlayers);
     setPlayers(setupPlayers);
