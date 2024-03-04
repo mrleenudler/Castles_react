@@ -1,9 +1,14 @@
 Gnr. 219 Bnr. 145 Snr. 5 Ideell andel 1/1
 
+
+
 _______________________________________________________________________________________________
 IMPLEMENTERES NÅ
 
 Cannot read properties of null (reading 'focus') (Tror det bare er et porblem når koden endres.)
+
+Branch: onlyActiveButtons
+-> Skal fjerne knapper for rom tli spillere som ikke er aktive. (er det lurt? ikke hvis det resizer rommene. Da trengs en offset i setedet.)
 
 -> categories variabelen skal erstattes.
 -> Starting rooms kan legges til. Size 125 må ikke kunne velges.
