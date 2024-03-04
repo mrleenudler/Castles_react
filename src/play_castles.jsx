@@ -138,7 +138,7 @@ function PlayCastles() {
   const handleCategoryChange = (newCategory) => { 
     setPlayers(prevPlayers => prevPlayers.map(player => {
       if (player.name === activePlayer.name) {
-        const bonuses = castleRooms.current.filter(room => room.category === newCategory && room.size === player.selectedRoomSize).map(room => room.bonus);
+        const bonuses = castleRooms.current.filter(room => room.category === newCategory && room.size === player.selectedRoomSize && room.bonus).map(room => room.bonus);
         return {
           ...player,
           selectedRoomCategory: newCategory,
@@ -164,7 +164,7 @@ function PlayCastles() {
 
     setPlayers(prevPlayers => prevPlayers.map(player => {
       if (player.name === activePlayer.name) {
-        const bonuses = castleRooms.current.filter(room => room.category === player.selectedRoomCategory && room.size === Number(newSize)).map(room => room.bonus);
+        const bonuses = castleRooms.current.filter(room => room.category === player.selectedRoomCategory && room.size === Number(newSize) && room.bonus).map(room => room.bonus);
         return {
           ...player,
           selectedRoomSize: newSize,
@@ -704,25 +704,14 @@ function PlayCastles() {
   // "Downstairs": ["Size", 150, 250, 500],
   // "Corridor": ["Size", 75, 151, 350], Må tillate å velge kun ny trapp eller korridor
   
-  // kanskje jeg ikke trenger 'room.' i det hele tatt?
-  const findImageFile = (category, size, bonus, name) => { // + room.name?
-    //console.log("FIND IMAGE FILE")
-    // if (room) {console.log("!bonus: ", `${room.category}-${room.size}-${room.roomName}.jpg`);}
-    // const room = castleRooms.current.find(room => room.category === category && room.size === size && room.bonus === bonus);
-    // room finner første som matcher category og size, ikke nødvendigvis den som kalles. Ikke relevant for starting room.
-    // if (room) {console.log(room.category === category, room.size === size, room.bonus === bonus);}
-    // if (room) {console.log("CATEGORY, SIZE, BONUS, NAME", room.category, room.size, room.bonus, room.roomName);}
-    // if (room) {console.log("CATEGORY, SIZE, BONUS, NAME", category, size, bonus, name);}
+  
+  const findImageFile = (category, size, bonus, name) => { 
     if (size === 125) {
       console.log(`IMAGE -> Starting-${name}.jpg`)
       return(`Starting-${name}.jpg`);
     } else if (!bonus) { // Lag checkbox for dropdown til room name. 
-      // const room = castleRooms.current.find(room => room.category === category && room.size === size);
-      //console.log("!bonus: ", `${room.category}-${room.size}-${room.roomName}.jpg`);
       return(`${category}-${size}-${name}.jpg`);
     } else if (bonus) {
-      // const room = castleRooms.current.find(room => room.category === category && room.size === size && room.bonus === bonus);
-      //console.log("Bonus: ", `${room.category}-${room.size}-${room.bonus}-${room.roomName}.jpg`) ;
       return(`${category}-${size}-${bonus}-${name}.jpg`);
     };
   };
@@ -1069,7 +1058,6 @@ function PlayCastles() {
                               setClickedRoomIndex(player.roomsArray.indexOf(room)); // Hvis det er flere like rom i roomsArray, feiler denne.
                               setIsModalOpen(true);
                             }}>
-                            {console.log("NAME:", room.roomName)}
                             <img src={findImageFile(room.category, room.size, room.bonus, room.roomName)} alt={`${room.category} room of size ${room.size}`} style={{width: '100%'}} />
                           </button>
                         </div>

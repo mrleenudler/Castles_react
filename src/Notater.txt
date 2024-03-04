@@ -5,6 +5,10 @@ IMPLEMENTERES NÅ
 
 Cannot read properties of null (reading 'focus') (Tror det bare er et porblem når koden endres.)
 
+-> Fjern bonus-dropdown when not applicable.
+-> Prøve å sette bonus til null i castleRooms. 
+	-> Funker ikke, da vil ikke rommet legges til, men null legges fremdeles til dropdowns.
+-> Må endre availableBonuses i både handleRoomSizeChange og handleCategoryChange
 
 -> useEffect for setActiveRoom, har den tilfredsstillende logikk for å velge bonuser?
 castleRooms.current.splice(castleRooms.current.indexOf(activeRoom), 1); //Fjerner activeRoom fra castleRooms (Trenger den en dobbelsjekk av at activeRoom finnes i castleRooms?)
@@ -46,7 +50,7 @@ castleRooms.current.splice(castleRooms.current.indexOf(activeRoom), 1); //Fjerne
 	-> (Alternativ fix: endre algoritmen for å finne riktig rom; er det i det hele tatt mulig?)
 -> "Adjust exits and room bonuses" må displayes på en bedre måte -> Toast
 -> "play_castles.jsx:971 Warning: Each child in a list should have a unique "key" prop."
--> "Hundings_hut" displayes ikke
+-> Når jeg velger flere utility-300 rooms, roter det med bonus-dropdown.
 
 react-dom.development.js:86 Warning: Encountered two children with the same key, `Corridor`. 
 	-> Kommer av lik bonus.
