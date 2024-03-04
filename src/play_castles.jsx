@@ -33,7 +33,7 @@ function PlayCastles() {
   // Categories and their corresponding sizes - Implementeres i Room?
   // Tror jeg trenger listen for dropdowns, mulig den kan erstattes med en filter funksjon?
   const categories = {
-    "Category": ["Size", 123],
+    "Category": ["Size"],
     "Activity": ["Size", 350, 500, 600],
     "Downstairs": ["Size", 150, 250, 500],
     "Food": ["Size", 100, 200, 250],
@@ -41,16 +41,15 @@ function PlayCastles() {
     "Outdoor": ["Size", 350, 500, 600],
     "Sleep": ["Size", 200, 300, 400],
     "Utility": ["Size", 100, 200, 300],
-    "Corridor": ["Size", 75, 125, 350],
+    "Corridor": ["Size", 75, 125, 150, 350],
   }; 
   // Erstattes med kode for å hente data fra castleRooms 
-  // Logikk for å fjerne brukte rom
   
   const imageSize = {
-    75: 5*10,
+    75: 2*10,
     100: 3*10,
     125: 5*10,
-    150: 5*10,
+    150: 2*10,
     200: 5*10,
     250: 5*10,
     300: 5*10,
@@ -927,7 +926,9 @@ function PlayCastles() {
     console.log("Final radom player order: ", randomPlayerOrder, arrayOfPlayers);
     setPlayers(setupPlayers);
     setActivePlayer(setupPlayers[0]);
-  });
+    // Fjerner Starting-rooms, slik at de ikke kan velges i spillet (avhnger av at de ligger etter hverandre i castle_rooms.json)
+    castleRooms.current.splice(castleRooms.current.indexOf(castleRooms.current.find(room => room.size === 125)), 4);
+  }); //setupGame
 
   // Skal sette focus på "Start game" button nåt den blir aktiv. (Kanskje jeg ikke skal bruke den som en useEffect?)
   useEffect( () => {
