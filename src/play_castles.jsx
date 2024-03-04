@@ -14,6 +14,7 @@ class Player {
       this.roomsArray = [startingRoom];  // Array to store rooms for each round
       this.scoresArray = [0]; // Starting room har ikke noen poeng
       this.selectedRoomCategory = "Category"; // Skal disse henvise til et Room?
+      this.availableRoomSizes = ["Size"];
       this.selectedRoomSize = 0; 
       this.availableBonuses = ["Bonus"];
       this.selectedRoomBonus = "Bonus";
@@ -93,24 +94,22 @@ function PlayCastles() {
 
   // Ser etter activeRoom når noe endres
   useEffect( () => {
-    console.log("ActivePlayer triggered", activePlayer.name)
-    setActiveRoom(castleRooms.current.find(room => room.category === activePlayer.selectedRoomCategory && room.size === activePlayer.selectedRoomSize && (room.bonus === activePlayer.selectedRoomBonus || room.bonus === "")))
+    //console.log("ActivePlayer triggered", activePlayer.name)
+    setActiveRoom(castleRooms.current.find(room => 
+      room.category === activePlayer.selectedRoomCategory 
+      && room.size === activePlayer.selectedRoomSize 
+      && (room.bonus === activePlayer.selectedRoomBonus || room.bonus === "")))
 // Tror den er 'undefined' hvis den ikke matcher noe rom. Bør kontrolleres.
     // Settes den til undefined --> trigger activeRoom == problemer?    
-    console.log("Room search:", castleRooms.current.find(room => room.category === activePlayer.selectedRoomCategory && room.size === activePlayer.selectedRoomSize && room.bonus === activePlayer.selectedRoomBonus));
+    console.log("Room search:", castleRooms.current.find(room => 
+      room.category === activePlayer.selectedRoomCategory 
+      && room.size === activePlayer.selectedRoomSize 
+      && room.bonus === activePlayer.selectedRoomBonus)); // console.log
   }, [activePlayer]);
 
 
-
-  
-  //debug
-  // useEffect( () => { 
-  //   const realPlayer = players.find(player => player.name === "Alice"); 
-  //   // console.log("Debug players data Alice: :", realPlayer.selectedRoomCategory, realPlayer.selectedRoomSize, realPlayer.selectedRoomBonus, realPlayer.availableBonuses)
-  // }, [players]);
-
   // Downstairs bonus oppdateres uavhengig av det aktuelle downstairs-rommet
-  const updateTotalScore = (addedScore) => { // må oppdateres ved added room(done) og changed bonus.  + Update kjellerbonus
+  const updateTotalScore = (addedScore) => { // må oppdateres ved added room(done) og changed bonus. + Update kjellerbonus
     setPlayers(prevPlayers => prevPlayers.map( player => (
       player.name === activePlayer.name ? {
         ...player,
@@ -120,7 +119,6 @@ function PlayCastles() {
   }; 
 
   const getPlayerBackgroundColor = (color) => {
-    //console.log(color); - Printer fargene 3 ganger hver. Hvorfor? er det interessant/uønsket?
     if (color === 'Red' && activePlayer.color === 'Red') {
       return 'rgba(255, 230, 230, 0.5)'; 
     } else if (color === 'Blue' && activePlayer.color === 'Blue') {
@@ -128,20 +126,33 @@ function PlayCastles() {
     } else if (color === 'Orange' && activePlayer.color === 'Orange') {
       return 'rgba(255, 250, 205, 0.5)'; 
     } else if (color === 'Green' && activePlayer.color === 'Green') {
-      return 'rgba(152, 251, 152, 0.5)'; // Ikke vurdert
+      return 'rgba(152, 251, 152, 0.4)'; // Litt kraftig, prøver mer gjennomsiktighet
     } else {
       return 'rgba(240, 240, 245, 0.5)'; // Even lighter gray with transparency for non-active players
     };
   }; // getPlayerBackgroundColor
   
 
-  const handleCategoryChange = (newCategory) => { 
+  const handleCategoryChange = (newCategory) => { // kan også skrives som ternary
+    let sizes = [];
+    console.log("handleCategoryChange");
+    const roomsOfCurrentCategory = castleRooms.current.filter(room => room.category === newCategory);
+    const bonuses = castleRooms.current.filter(room => room.category === newCategory && room.size === activePlayer.selectedRoomSize && room.bonus).map(room => room.bonus);
+    for (let i = 0; i < roomsOfCurrentCategory.length; i++) {
+      if (!sizes.includes(roomsOfCurrentCategory[i].size)) {
+        sizes.push(roomsOfCurrentCategory[i].size);
+        console.log("Added roomSize: ", roomsOfCurrentCategory[i].size);
+      } else {
+        //console.log("No roomSize added")
+      };
+      //console.log("FOR-loop", i);
+    };
     setPlayers(prevPlayers => prevPlayers.map(player => {
       if (player.name === activePlayer.name) {
-        const bonuses = castleRooms.current.filter(room => room.category === newCategory && room.size === player.selectedRoomSize && room.bonus).map(room => room.bonus);
         return {
           ...player,
           selectedRoomCategory: newCategory,
+          availableRoomSizes: ["Size", ...sizes],
           availableBonuses: ["Bonus", ...bonuses]
         };
       }
@@ -151,8 +162,13 @@ function PlayCastles() {
     setActivePlayer(players.map( player => { // Kan man bruke find-updatedPlayers? Usikker på om det skaper sync-issues
       if (player.name === activePlayer.name) {
         console.log("handleCategoryChange -> setActivePlayer: ", player.name, player.selectedRoomCategory, newCategory, player.selectedRoomSize, player.selectedRoomBonus)
-        return { ...player, selectedRoomCategory: newCategory};
-      }
+        return { 
+          ...player, 
+          selectedRoomCategory: newCategory,
+          availableRoomSizes: ["Size", ...sizes],
+          availableBonuses: ["Bonus", ...bonuses]
+        };
+      };
       return player; // spillere som ikke matcher playerName
     }).find(player => player.name === activePlayer.name)); // Er denne altfor omfattende? Kan jeg bare oppdatere activePlayer uten å iterere over players?
   }; // handleCategoryChange
@@ -707,7 +723,7 @@ function PlayCastles() {
   
   const findImageFile = (category, size, bonus, name) => { 
     if (size === 125) {
-      console.log(`IMAGE -> Starting-${name}.jpg`)
+      //console.log(`IMAGE -> Starting-${name}.jpg`)
       return(`Starting-${name}.jpg`);
     } else if (!bonus) { // Lag checkbox for dropdown til room name. 
       return(`${category}-${size}-${name}.jpg`);
@@ -778,20 +794,6 @@ function PlayCastles() {
   }; // Modal
   
   
-  // {player.name === activePlayer.name && <select name={`${player.name}-category`} placeholder ="placeholder" value={player.selectedRoomCategory} onChange={(e) => handleCategoryChange(e.target.value)}> 
-  // {/*vurder om dynamisk 'name' er nyttig eller ikke - tror ikke den er nyttig */}
-  //   {Object.keys(categories).map(category => (
-  //     <option key={category} value={category}>{category}{/*console.log(player.name, player.selectedRoomCategory, player.selectedRoomSize)*/}</option> // Må resettes ved submit - implementer player.
-  //   ))}
-  // </select>}
-  
-
-
-  // const setupPlayers = (inputPlayers, inputColors) => { // Inkluder knapp for random starting player og random spiller-rekkefølge
-  //   setPlayers(player => inputPlayers.map(iPlayer => 
-  //     ))
-  // }
-
   const [gameStage, setGameStage] = useState("Setup"); // Skal være "Setup"
 
   const [playerColors, setPlayerColors] = useState({
@@ -1010,23 +1012,24 @@ function PlayCastles() {
                   <td align="center"> 
                     {/* Dropdown for categories */}
                     {player.name === activePlayer.name && <select name={`${player.name}-category`} placeholder ="placeholder" value={player.selectedRoomCategory} onChange={(e) => handleCategoryChange(e.target.value)}> 
-                    {/*vurder om dynamisk 'name' er nyttig eller ikke - tror ikke den er nyttig */}
                       {Object.keys(categories).map(category => (
                         <option key={category} value={category}>{category}{/*console.log(player.name, player.selectedRoomCategory, player.selectedRoomSize)*/}</option> // Må resettes ved submit - implementer player.
                       ))}
                     </select>}
                   </td>
                   <td>
-                  {player.name === activePlayer.name && <select name={`${player.name}-roomSize`} placeholder ="placeholder" value={player.selectedRoomSize} onChange={(e) => handleRoomSizeChange(e.target.value)}> 
-                      {/*vurder om dynamisk 'name' er nyttig eller ikke. Kan bruke Template Literals, eller la være. "Generally preferred.*/}
-                      {categories[player.selectedRoomCategory].map(roomSize => ( // Erstattes med tilgjengelige roomSize fra castleRooms
+                    {/* Dropdown for roomSize */}
+                    {player.name === activePlayer.name && <select name={`${player.name}-roomSize`} placeholder ="placeholder" value={player.selectedRoomSize} onChange={(e) => handleRoomSizeChange(e.target.value)}> 
+                      {player.availableRoomSizes.map(roomSize => ( // Erstattes med tilgjengelige roomSize fra castleRooms
                         <option key={roomSize} value={roomSize}>{roomSize}</option>
                       ))}
                     </select>}
                   </td>
                   <td>
                     {/* Dropdown for roomBonuses */}
-                    {player.name === activePlayer.name && player.availableBonuses.length > 1 && <select name={`${player.name}-selectedRoomBonus`} placeholder ="placeholder" value={player.selectedRoomBonus} onChange={(e) => handleRoomBonusChange(e.target.value)}>
+                    {player.name === activePlayer.name 
+                    && player.availableBonuses.length > 1 
+                    && <select name={`${player.name}-selectedRoomBonus`} placeholder ="placeholder" value={player.selectedRoomBonus} onChange={(e) => handleRoomBonusChange(e.target.value)}>
                       {player.availableBonuses.map(bonus => (
                           <option key={bonus} value={bonus}>{bonus}</option>
                       ))}
@@ -1034,8 +1037,7 @@ function PlayCastles() {
                   </td>
                   <td>
                   {player.name === activePlayer.name && <button  disabled={player.name !== activePlayer.name || player.roomAdded} type='button' onClick={() => addRoom()}>Add Room</button>}
-                    {/*<Toast message="No room selected" show={showToast}/>*/}
-                    {console.log("Lengde av castleRooms DOM: ", castleRooms.current.length)}
+                    {/*<Toast message="No actual room selected" show={showToast}/>*/}
                   </td>
                   <td>
                   {player.name === activePlayer.name && <button type='button' onClick={() => {endTurn(); setCorridorbonusesUsed(0)}}>End Turn</button>}
@@ -1058,6 +1060,7 @@ function PlayCastles() {
                               setClickedRoomIndex(player.roomsArray.indexOf(room)); // Hvis det er flere like rom i roomsArray, feiler denne.
                               setIsModalOpen(true);
                             }}>
+                            {console.log(`${room.category}-${room.size}-${room.bonus}-${room.roomName}.jpg`)}
                             <img src={findImageFile(room.category, room.size, room.bonus, room.roomName)} alt={`${room.category} room of size ${room.size}`} style={{width: '100%'}} />
                           </button>
                         </div>

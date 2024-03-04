@@ -549,7 +549,7 @@
         "category": "Activity",
         "size": 150,
         "bonus": "L+S",
-        "roomName": "",
+        "roomName": "Piano_room",
         "exits": 3,
         "openExits": 2,
         "bonusValue": -1,
@@ -727,6 +727,18 @@
         "value": 1
     },
     {
+        "id": 38,
+        "category": "Outdoor",
+        "size": 250,
+        "bonus": "Utility",
+        "roomName": "Mangler",
+        "exits": 2,
+        "openExits": 1,
+        "bonusValue": 1,
+        "bonusesAchieved": 0,
+        "completionBonus": false,
+        "value": 1
+    },    {
         "id": 39,
         "category": "Outdoor",
         "size": 400,
