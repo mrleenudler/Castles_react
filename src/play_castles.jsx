@@ -142,7 +142,7 @@ function PlayCastles() {
         return {
           ...player,
           selectedRoomCategory: newCategory,
-          availableBonuses: ["CCbonus", ...bonuses]
+          availableBonuses: ["Bonus", ...bonuses]
         };
       }
       return player;
@@ -168,7 +168,7 @@ function PlayCastles() {
         return {
           ...player,
           selectedRoomSize: newSize,
-          availableBonuses: ["CSbonus", ...bonuses]
+          availableBonuses: ["Bonus", ...bonuses]
         }
       }
       return player;
@@ -1026,7 +1026,7 @@ function PlayCastles() {
                   </td>
                   <td>
                     {/* Dropdown for roomBonuses */}
-                    {player.name === activePlayer.name && <select name={`${player.name}-selectedRoomBonus`} placeholder ="placeholder" value={player.selectedRoomBonus} onChange={(e) => handleRoomBonusChange(e.target.value)}>
+                    {player.name === activePlayer.name && player.availableBonuses.length > 1 && <select name={`${player.name}-selectedRoomBonus`} placeholder ="placeholder" value={player.selectedRoomBonus} onChange={(e) => handleRoomBonusChange(e.target.value)}>
                       {player.availableBonuses.map(bonus => (
                           <option key={bonus} value={bonus}>{bonus}</option>
                       ))}
