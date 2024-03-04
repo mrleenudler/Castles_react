@@ -492,19 +492,6 @@
         "value": 0
     },
     {
-        "id": 26,
-        "category": "Corridor",
-        "size": 150,
-        "bonus": "",
-        "roomName": "Hallway",
-        "exits": 14,
-        "openExits": 13,
-        "bonusValue": 0,
-        "bonusesAchieved": 0,
-        "completionBonus": false,
-        "value": 0
-    },
-    {
         "id": 27,
         "category": "Corridor",
         "size": 350,
@@ -521,29 +508,15 @@
         "id": 28,
         "category": "Corridor",
         "size": 350,
-        "bonus": "Great_hall",
-            "roomName": "",
+        "bonus": "Utility",
+        "roomName": "Great_hall",
         "exits": 11,
         "openExits": 10,
         "bonusValue": 1,
         "bonusesAchieved": 0,
         "completionBonus": false,
         "value": 1
-    },
-    {
-        "id": 29,
-        "category": "Corridor",
-        "size": 350,
-        "bonus": "bonus1",
-            "roomName": "",
-        "exits": 10,
-        "openExits": 9,
-        "bonusValue": 2,
-        "bonusesAchieved": 0,
-        "completionBonus": false,
-        "value": 3
-    },
-        
+    },  
     {
         "id": 53,
         "category": "Activity",

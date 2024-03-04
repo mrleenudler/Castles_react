@@ -1019,7 +1019,9 @@ function PlayCastles() {
                   </td>
                   <td>
                     {/* Dropdown for roomSize */}
-                    {player.name === activePlayer.name && <select name={`${player.name}-roomSize`} placeholder ="placeholder" value={player.selectedRoomSize} onChange={(e) => handleRoomSizeChange(e.target.value)}> 
+                    {player.name === activePlayer.name 
+                    && activePlayer.availableRoomSizes.length > 1 
+                    && <select name={`${player.name}-roomSize`} placeholder ="placeholder" value={player.selectedRoomSize} onChange={(e) => handleRoomSizeChange(e.target.value)}> 
                       {player.availableRoomSizes.map(roomSize => ( // Erstattes med tilgjengelige roomSize fra castleRooms
                         <option key={roomSize} value={roomSize}>{roomSize}</option>
                       ))}

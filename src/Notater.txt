@@ -5,14 +5,12 @@ IMPLEMENTERES NÅ
 
 Cannot read properties of null (reading 'focus') (Tror det bare er et porblem når koden endres.)
 
--> Fjern size dropdown when not applicable.
-	-> size-dropdown genereres nå fra castleRooms. 
-	-> Displayer ikke bilde (Activity-100) -> Tror dfet skyldes 'categories' variabelen som ikke tar alle størrelsene.
 -> categories variabelen skal erstattes.
+-> Starting rooms kan legges til. Size 125 må ikke kunne velges.
+-> Corridor og stairs er for stor, må nedskaleres.
 
--> Bonus forsvinner fra Activity-600-* når det første rommet er tatt.
 
-
+-> Romkategorier som er helt tomme, kan fjernes. availebleCategories stateVariable?
 -> useEffect for setActiveRoom, har den tilfredsstillende logikk for å velge bonuser?
 castleRooms.current.splice(castleRooms.current.indexOf(activeRoom), 1); //Fjerner activeRoom fra castleRooms (Trenger den en dobbelsjekk av at activeRoom finnes i castleRooms?)
 -> Fikk error bår jeg prøvde å legge til det andre sleep-400-corridor-rommet (Er det pga lik identitet? Funker det for andre rom?)
