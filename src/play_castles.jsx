@@ -32,19 +32,22 @@ function PlayCastles() {
 
   // Categories and their corresponding sizes - Implementeres i Room?
   // Tror jeg trenger listen for dropdowns, mulig den kan erstattes med en filter funksjon?
-  const categories = {
-    "Category": ["Size"],
-    "Activity": ["Size", 350, 500, 600],
-    "Downstairs": ["Size", 150, 250, 500],
-    "Food": ["Size", 100, 200, 250],
-    "Living": ["Size", 100, 350, 600],
-    "Outdoor": ["Size", 350, 500, 600],
-    "Sleep": ["Size", 200, 300, 400],
-    "Utility": ["Size", 100, 200, 300],
-    "Corridor": ["Size", 75, 125, 150, 350],
-  }; 
+  // const categories = {
+  //   "Category": ["Size"],
+  //   "Activity": ["Size", 350, 500, 600],
+  //   "Downstairs": ["Size", 150, 250, 500],
+  //   "Food": ["Size", 100, 200, 250],
+  //   "Living": ["Size", 100, 350, 600],
+  //   "Outdoor": ["Size", 350, 500, 600],
+  //   "Sleep": ["Size", 200, 300, 400],
+  //   "Utility": ["Size", 100, 200, 300],
+  //   "Corridor": ["Size", 75, 125, 150, 350],
+  // }; 
   // Erstattes med kode for å hente data fra castleRooms 
   
+  const categories = ["Category", ...new Set(castleRooms.current.map(room => room.category))];
+  // legger foreløpig ikke opp til at denne skal kunne endres (det blir tomt for rom i en kategori etter hvert, men det er ikke et alvorlig problem, bare en lite UX-greie)
+
   const imageSize = {
     75: 1*10 + 25,
     100: 3*10 + 25,
@@ -862,7 +865,7 @@ function PlayCastles() {
   const focusPlayer1 = useRef(null);
 
   useEffect( () => {
-    //focusPlayer1.current.focus();
+    focusPlayer1.current.focus();
   }, []);
 
   const [randomStartingPlayer, setRandomStartingPlayer] = useState(true);
@@ -1013,7 +1016,7 @@ function PlayCastles() {
                   <td align="center"> 
                     {/* Dropdown for categories */}
                     {player.name === activePlayer.name && <select name={`${player.name}-category`} placeholder ="placeholder" value={player.selectedRoomCategory} onChange={(e) => handleCategoryChange(e.target.value)}> 
-                      {Object.keys(categories).map(category => (
+                      {categories.map(category => (
                         <option key={category} value={category}>{category}{/*console.log(player.name, player.selectedRoomCategory, player.selectedRoomSize)*/}</option> // Må resettes ved submit - implementer player.
                       ))}
                     </select>}
