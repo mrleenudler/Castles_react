@@ -3,8 +3,18 @@ Gnr. 219 Bnr. 145 Snr. 5 Ideell andel 1/1
 _______________________________________________________________________________________________
 IMPLEMENTERES NÅ
 
+Cannot read properties of null (reading 'focus') (Tror det bare er et porblem når koden endres.)
 
--> useRef lager foreløpig problemer for castleRooms.find
+
+-> useEffect for setActiveRoom, har den tilfredsstillende logikk for å velge bonuser?
+castleRooms.current.splice(castleRooms.current.indexOf(activeRoom), 1); //Fjerner activeRoom fra castleRooms (Trenger den en dobbelsjekk av at activeRoom finnes i castleRooms?)
+-> Fikk error bår jeg prøvde å legge til det andre sleep-400-corridor-rommet (Er det pga lik identitet? Funker det for andre rom?)
+-> Sjekk også at bare ett rom fjernes.
+
+-> focus på player 1 er borte.
+-> Legg til 'focus' for 'End turn' når rom er lagt til.
+
+->Downstairs bonus capper, det skal den ikke. Den skal faktisk ikke kunne legge til bonuser, dert ordnes automatisk.
 
 -> Sett castleRooms som state-variable eller ref
 => Fjerne dropdowns for rom-egenskaper som ikke eksisterer; Kanskje ikke vise dem før de er bekreftet??
@@ -12,8 +22,9 @@ IMPLEMENTERES NÅ
 	.filter eller .reduce for å sortere ut aktuelle størrelser og bonuser (erstatt størrelsesmatrisen)	
 -> Stairs og corridors må finnes i riktig antall (aktuelt med en counter?)
 
--> sett fokus på StartGame button når aktiv
+-> Fjern knapper for rom når !activeplayer
 
+-> Const addRoom() legger til score på feil sted, den må legges til riktig downstairs room. *Den oppdaterer totalScore også, men den bør oppdateres ved å summere scoresArray.
 -> Test at alle rommene dislplayer korrekt ved å loope gjennom "id"
 	-> Rett opp i "id" (de er ikke i rekkefølge eller unike)
 -> Kontroller at bonus fungerer for Downstairs og Utility rom med bare 1 exit.
@@ -37,7 +48,9 @@ IMPLEMENTERES NÅ
 -> "play_castles.jsx:971 Warning: Each child in a list should have a unique "key" prop."
 -> "Hundings_hut" displayes ikke
 
-
+react-dom.development.js:86 Warning: Encountered two children with the same key, `Corridor`. 
+	-> Kommer av lik bonus.
+	-> Kan bli unsupported i en senere versjon.
 ________________________________________________________________________________________________
 IMPLEMENTERES SENERE
 
@@ -60,6 +73,7 @@ Skaler bildene med logikk -> Sjekk skalering og juster etter behov
 -> activateRoomBonus-Downstairs har en dobbel <div> - undersøk
 -> Undo funksjonalitet for addRoom og endTurn
 -> Undersøk relasjonen meoom activePlayer og players[clickedPlayerIndex]
+-> Knapper(Add room) og dropdowns til ikke-aktive spillere, blir de både disablet og usynlige? Unødvendig mye kode?
 
 -> Undersøk isOpen vs isModalOpen
 -> handleChangeCategory -> useEffect[activePlayer] -> useEffect[activeRoom]
@@ -121,6 +135,7 @@ Også, når jeg saver, før jeg reloader, printes rommene to ganger(samsvarer me
 -> Use React Developer Tools' Profiler to monitor your application's performance. 
 -> Revisit 'key' properties
 -> Skriv bedre kommentarer til koden
+-> Siden re-rendres mange ganger pga oppdatering av flere state variables. Er det uproblematisk, eller uønsket?
 
 -> Statistikk over soverom-bonusen: Når et soverom er fullført, hvor mange tomt-room-deck-poeng får spilleren? Hvert antall soverom må få sitt eget gjennomsnitt.
 -> Modifisere manifest.json

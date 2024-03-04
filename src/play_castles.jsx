@@ -12,12 +12,12 @@ class Player {
       this.name = name;
       this.color = color;
       this.roomsArray = [startingRoom];  // Array to store rooms for each round
-      this.scoresArray = [0]; // Array to store scores for each round
+      this.scoresArray = [0]; // Starting room har ikke noen poeng
       this.selectedRoomCategory = "Category"; // Skal disse henvise til et Room?
-      this.selectedRoomSize = 0;
+      this.selectedRoomSize = 0; 
       this.availableBonuses = ["Bonus"];
       this.selectedRoomBonus = "Bonus";
-      this.selectedRoom = null; // eller addRoom(room)? Kan jeg bruke en tom string/null her? Det skal være et Room-objekt (Aktuelt å revive class Room?)
+      this.selectedRoom = null; // eller addRoom(room)? Kan jeg br en tom string/null her? Det skal være et Room-objekt (Aktuelt å revive class Room?)
       this.roomAdded = false; // Disabler "Add Room" knappen
       this.totalScore = totalScore;  
   }
@@ -94,7 +94,7 @@ function PlayCastles() {
   // Ser etter activeRoom når noe endres
   useEffect( () => {
     console.log("ActivePlayer triggered", activePlayer.name)
-    setActiveRoom(castleRooms.current.find(room => room.category === activePlayer.selectedRoomCategory && room.size === activePlayer.selectedRoomSize && room.bonus === activePlayer.selectedRoomBonus))
+    setActiveRoom(castleRooms.current.find(room => room.category === activePlayer.selectedRoomCategory && room.size === activePlayer.selectedRoomSize && (room.bonus === activePlayer.selectedRoomBonus || room.bonus === "")))
 // Tror den er 'undefined' hvis den ikke matcher noe rom. Bør kontrolleres.
     // Settes den til undefined --> trigger activeRoom == problemer?    
     console.log("Room search:", castleRooms.current.find(room => room.category === activePlayer.selectedRoomCategory && room.size === activePlayer.selectedRoomSize && room.bonus === activePlayer.selectedRoomBonus));
@@ -199,6 +199,7 @@ function PlayCastles() {
 
   // Legger et rom til roomsArray og oppdaterer scoresArray
   const addRoom = () => { 
+    console.log("-------------> Adding room");
     if(activeRoom){
       setPlayers(prevPlayers => prevPlayers.map(player => // Unngå crash når ikke alle variable er valgt
         player.name === activePlayer.name ? { // Note: Her brukes ternary i stedet for if.
@@ -208,13 +209,16 @@ function PlayCastles() {
           selectedRoomCategory: "Category", // Resetter dropdowns
           selectedRoomSize: "Size",
           selectedRoomBonus: "Bonus",
-          roomAdded: true, // Disables etter bruk. Re-enables ved Food-bonus
+          roomAdded: true, // 'Add room' knappen disables etter bruk. Re-enables ved Food-bonus
         } : player
       ));
-      const addDownstairsBonus = activePlayer.roomsArray // Legger til bonuser fraaktuelle tidligere "Downstairs" rom 
-      .filter(room => room.category === "Downstairs" && room.bonus === activePlayer.roomsArray.at(-1).category)
-      .reduce((acc, room) => acc + room.bonusValue, 0);
-      updateTotalScore(activeRoom.value + addDownstairsBonus) 
+      console.log("INDEXOF: ", castleRooms.current.indexOf(activeRoom)); // Sjekker at rommet faktisk finnes i castleRooms
+      console.log("Lengde av castleRooms: ", castleRooms.current.length); // Undersøker at lengden av castleRooms reduseres
+      castleRooms.current.splice(castleRooms.current.indexOf(activeRoom), 1); //Fjerner activeRoom fra castleRooms (Trenger den en dobbelsjekk av at activeRoom finnes i castleRooms?)
+      const addDownstairsBonus = activePlayer.roomsArray // Legger til bonuser fra aktuelle tidligere "Downstairs" rom 
+      .filter(room => room.category === "Downstairs" && room.bonus === activePlayer.roomsArray.at(-1).category) //filtrerer ut rom fra roomsarray som har bonus tilscarende kategorien til siste rom som er lagt til
+      .reduce((acc, room) => acc + room.bonusValue, 0); // Summerer opp bonusene til alle aktuelle downstairs rooms (Bør heller legges til de individuelle rommene)
+      updateTotalScore(activeRoom.value + addDownstairsBonus);
     } else {
       displayToast(); // Viser Toast-melding om at gyldig rom ikke er valgt. (Bør meldingen skrives i denne funksjonen?)
     };
@@ -700,19 +704,26 @@ function PlayCastles() {
   // "Downstairs": ["Size", 150, 250, 500],
   // "Corridor": ["Size", 75, 151, 350], Må tillate å velge kun ny trapp eller korridor
   
+  // kanskje jeg ikke trenger 'room.' i det hele tatt?
   const findImageFile = (category, size, bonus, name) => { // + room.name?
-    console.log("FIND IMAGE FILE")
+    //console.log("FIND IMAGE FILE")
+    // if (room) {console.log("!bonus: ", `${room.category}-${room.size}-${room.roomName}.jpg`);}
+    // const room = castleRooms.current.find(room => room.category === category && room.size === size && room.bonus === bonus);
+    // room finner første som matcher category og size, ikke nødvendigvis den som kalles. Ikke relevant for starting room.
+    // if (room) {console.log(room.category === category, room.size === size, room.bonus === bonus);}
+    // if (room) {console.log("CATEGORY, SIZE, BONUS, NAME", room.category, room.size, room.bonus, room.roomName);}
+    // if (room) {console.log("CATEGORY, SIZE, BONUS, NAME", category, size, bonus, name);}
     if (size === 125) {
-      console.log(`Starting-${name}.jpg`)
+      console.log(`IMAGE -> Starting-${name}.jpg`)
       return(`Starting-${name}.jpg`);
     } else if (!bonus) { // Lag checkbox for dropdown til room name. 
-      const room = castleRooms.current.find(room => room.category === category && room.size === size);
-      console.log("!bonus: ", `${room.category}-${room.size}-${room.roomName}.jpg`) ;
-      return(`${room.category}-${room.size}-${room.roomName}.jpg`);
-    } else {
-      const room = castleRooms.current.find(room => room.category === category && room.size === size && room.bonus === bonus);
-      console.log("Bonus: ", `${room.category}-${room.size}-${room.bonus}-${room.roomName}.jpg`) ;
-      return(`${room.category}-${room.size}-${room.bonus}-${room.roomName}.jpg`);
+      // const room = castleRooms.current.find(room => room.category === category && room.size === size);
+      //console.log("!bonus: ", `${room.category}-${room.size}-${room.roomName}.jpg`);
+      return(`${category}-${size}-${name}.jpg`);
+    } else if (bonus) {
+      // const room = castleRooms.current.find(room => room.category === category && room.size === size && room.bonus === bonus);
+      //console.log("Bonus: ", `${room.category}-${room.size}-${room.bonus}-${room.roomName}.jpg`) ;
+      return(`${category}-${size}-${bonus}-${name}.jpg`);
     };
   };
 
@@ -974,7 +985,7 @@ function PlayCastles() {
     return (
       <div>
         <Toast message="Custom message" show={showToast}/>{/* Legg Toasten i en portal */}
-        <h1>Castles Score Keeper V28</h1>
+        <h1>Castles Score Keeper</h1>
         <div>
           {clickedRoom && (
             <Modal isOpen={isModalOpen} onClose={ () => setIsModalOpen(false)}>
@@ -1035,6 +1046,7 @@ function PlayCastles() {
                   <td>
                   {player.name === activePlayer.name && <button  disabled={player.name !== activePlayer.name || player.roomAdded} type='button' onClick={() => addRoom()}>Add Room</button>}
                     {/*<Toast message="No room selected" show={showToast}/>*/}
+                    {console.log("Lengde av castleRooms DOM: ", castleRooms.current.length)}
                   </td>
                   <td>
                   {player.name === activePlayer.name && <button type='button' onClick={() => {endTurn(); setCorridorbonusesUsed(0)}}>End Turn</button>}
@@ -1057,6 +1069,7 @@ function PlayCastles() {
                               setClickedRoomIndex(player.roomsArray.indexOf(room)); // Hvis det er flere like rom i roomsArray, feiler denne.
                               setIsModalOpen(true);
                             }}>
+                            {console.log("NAME:", room.roomName)}
                             <img src={findImageFile(room.category, room.size, room.bonus, room.roomName)} alt={`${room.category} room of size ${room.size}`} style={{width: '100%'}} />
                           </button>
                         </div>
