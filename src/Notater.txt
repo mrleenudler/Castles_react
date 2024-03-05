@@ -10,7 +10,6 @@ IMPLEMENTERES NÅ
 
 ==> husk å re-enable focus
 
--> Fant ikke activity room (200?)
 
 
 ->Downstairs bonus capper, det skal den ikke. Den skal faktisk ikke kunne legge til bonuser, dert ordnes automatisk.
