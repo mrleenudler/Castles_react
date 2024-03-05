@@ -12,13 +12,13 @@ class Player {
       this.name = name;
       this.color = color;
       this.roomsArray = [startingRoom];  // Array to store rooms for each round
-      this.scoresArray = [0]; // Starting room har ikke noen poeng
+      this.scoresArray = [totalScore]; // Starting room har ikke noen poeng
       this.selectedRoomCategory = "Category"; // Skal disse henvise til et Room?
       this.availableRoomSizes = ["Size"];
       this.selectedRoomSize = 0; 
       this.availableBonuses = ["Bonus"];
       this.selectedRoomBonus = "Bonus";
-      this.selectedRoom = null; // eller addRoom(room)? Kan jeg br en tom string/null her? Det skal være et Room-objekt (Aktuelt å revive class Room?)
+      this.selectedRoom = null; 
       this.roomAdded = false; // Disabler "Add Room" knappen
       this.totalScore = totalScore;  
   }
@@ -30,29 +30,14 @@ function PlayCastles() {
   // Direct Mutations: Be mindful when directly mutating objects or arrays referenced by refs. While useRef doesn’t cause re-renders, direct mutations bypass React's state management and can lead to harder-to-track bugs.
 
 
-  // Categories and their corresponding sizes - Implementeres i Room?
-  // Tror jeg trenger listen for dropdowns, mulig den kan erstattes med en filter funksjon?
-  // const categories = {
-  //   "Category": ["Size"],
-  //   "Activity": ["Size", 350, 500, 600],
-  //   "Downstairs": ["Size", 150, 250, 500],
-  //   "Food": ["Size", 100, 200, 250],
-  //   "Living": ["Size", 100, 350, 600],
-  //   "Outdoor": ["Size", 350, 500, 600],
-  //   "Sleep": ["Size", 200, 300, 400],
-  //   "Utility": ["Size", 100, 200, 300],
-  //   "Corridor": ["Size", 75, 125, 150, 350],
-  // }; 
-  // Erstattes med kode for å hente data fra castleRooms 
-  
-  const categories = ["Category", ...new Set(castleRooms.current.map(room => room.category))];
+  const categories = ["Category", ...new Set(castleRooms.current.map(room => room.category).sort())];
   // legger foreløpig ikke opp til at denne skal kunne endres (det blir tomt for rom i en kategori etter hvert, men det er ikke et alvorlig problem, bare en lite UX-greie)
 
   const imageSize = {
     75: 1*10 + 25,
     100: 3*10 + 25,
     125: 5*10 + 25,
-    150: 1*10 + 25,
+    150: 3*10 + 25,
     200: 5*10 + 25,
     250: 5*10 + 25,
     300: 5*10 + 25,
@@ -64,9 +49,9 @@ function PlayCastles() {
   };
 
   const [players, setPlayers] = useState([
-    new Player("Alice", "Blue", 0),
-    new Player("Bob", "Red", 1),
-    new Player("Charlie", "Orange", 2),
+    new Player("Alice", "Blue", 0, castleRooms.current.find(room => room.roomName === "Blue")),
+    new Player("Bob", "Red", 1, castleRooms.current.find(room => room.roomName === "Red")),
+    new Player("Charlie", "Orange", 2, castleRooms.current.find(room => room.roomName === "Orange")),
   ]); // Erstattes av Setup
 
   const [activePlayer, setActivePlayer] = useState(players[0]); 
@@ -80,30 +65,27 @@ function PlayCastles() {
   useEffect( () => {
     //const addRooms = [castleRooms.find(room => room.id === 31), castleRooms.find(room => room.id === 32), castleRooms.find(room => room.id === 33), castleRooms.find(room => room.id === 34)];
     const addRooms = [castleRooms.current.find(room => room.id === 4), 
-      castleRooms.current.find(room => room.id === 41), 
-      castleRooms.current.find(room => room.id === 43), 
       castleRooms.current.find(room => room.id === 31)];
     //const firstRoom = castleRooms.find(room => room.id === 4); // Sleep-300-Living.jpg
     //const secondRoom = castleRooms.find(room => room.id === 41); // Outdoor-600-Outdoor.jpg
-    console.log("ADD ROOMS:", ...addRooms);
+    //console.log("ADD ROOMS:", ...addRooms);
     setPlayers(prevPlayers => prevPlayers.map( player => ({
         ...player,
         roomsArray: [...player.roomsArray, ...addRooms], //roomsArray.length === 1
-        scoresArray: [0, 5, 5, 5, 5] 
+        scoresArray: [...player.scoresArray, 5, 5] 
     })));
     // console.log("TESTROM: ", players.map(player => player.roomsArray[1].category)); // async
   }, []); // Kun for test. Fjernes senere.
 
   // Ser etter activeRoom når noe endres
   useEffect( () => {
-    //console.log("ActivePlayer triggered", activePlayer.name)
+    //console.log("ActivePlayer changed -> Setting activeRoom", activePlayer.name);
+    //console.log("activePlayer.selectedRoomCategory: ", activePlayer.selectedRoomCategory);
     setActiveRoom(castleRooms.current.find(room => 
       room.category === activePlayer.selectedRoomCategory 
       && room.size === activePlayer.selectedRoomSize 
       && (room.bonus === activePlayer.selectedRoomBonus || room.bonus === "")))
-// Tror den er 'undefined' hvis den ikke matcher noe rom. Bør kontrolleres.
-    // Settes den til undefined --> trigger activeRoom == problemer?    
-    console.log("Room search:", castleRooms.current.find(room => 
+    console.log("activeRoom search:", castleRooms.current.find(room => 
       room.category === activePlayer.selectedRoomCategory 
       && room.size === activePlayer.selectedRoomSize 
       && room.bonus === activePlayer.selectedRoomBonus)); // console.log
@@ -118,7 +100,7 @@ function PlayCastles() {
         totalScore: player.totalScore + addedScore,
       } : player
     )));
-  }; 
+  }; // kanskje fjerne denne
 
   const getPlayerBackgroundColor = (color) => {
     if (color === 'Red' && activePlayer.color === 'Red') {
@@ -137,7 +119,7 @@ function PlayCastles() {
 
   const handleCategoryChange = (newCategory) => { // kan også skrives som ternary
     let sizes = [];
-    console.log("handleCategoryChange");
+    console.log("handleCategoryChange function");
     const roomsOfCurrentCategory = castleRooms.current.filter(room => room.category === newCategory);
     const bonuses = castleRooms.current.filter(room => room.category === newCategory && room.size === activePlayer.selectedRoomSize && room.bonus).map(room => room.bonus);
     for (let i = 0; i < roomsOfCurrentCategory.length; i++) {
@@ -163,7 +145,7 @@ function PlayCastles() {
 
     setActivePlayer(players.map( player => { // Kan man bruke find-updatedPlayers? Usikker på om det skaper sync-issues
       if (player.name === activePlayer.name) {
-        console.log("handleCategoryChange -> setActivePlayer: ", player.name, player.selectedRoomCategory, newCategory, player.selectedRoomSize, player.selectedRoomBonus)
+        console.log(" setActivePlayer in handleCategoryChange -> ", player.name, player.selectedRoomCategory, newCategory, player.selectedRoomSize, player.selectedRoomBonus)
         return { 
           ...player, 
           selectedRoomCategory: newCategory,
@@ -179,23 +161,34 @@ function PlayCastles() {
 
   const handleRoomSizeChange = (nySize) => { 
     const newSize = Number(nySize); // Kan jeg forenkle dette ? -> Av en eller anne grunn finner den ikke rommet når jeg forenkler. Revisit.
-
+    console.log("players[clickedPlayerIndex].selectedRoomCategory: ", clickedPlayerIndex);
+    console.log("TEST");
+    const bonuses = castleRooms.current.filter(room => 
+      room.category === players[clickedPlayerIndex].selectedRoomCategory 
+      && room.size === Number(newSize) 
+      && room.bonus).map(room => room.bonus);
+    console.log("List of bonuses: ", Number(nySize), castleRooms.current.filter(room => room.category === players[clickedPlayerIndex].selectedRoomCategory && room.size === Number(newSize) && room.bonus).map(room => room.bonus));
+    console.log("Bonus tests : ", castleRooms.current.filter(room => room.category === players[clickedPlayerIndex].selectedRoomCategory ));// && room.size === Number(newSize) && room.bonus).map(room => room.bonus));
+    console.log("Bonus tests : ", players[clickedPlayerIndex]);
+    
     setPlayers(prevPlayers => prevPlayers.map(player => {
       if (player.name === activePlayer.name) {
-        const bonuses = castleRooms.current.filter(room => room.category === player.selectedRoomCategory && room.size === Number(newSize) && room.bonus).map(room => room.bonus);
         return {
           ...player,
           selectedRoomSize: newSize,
           availableBonuses: ["Bonus", ...bonuses]
-        }
-      }
+        };
+      };
       return player;
     }));
 
     setActivePlayer(players.map(player => { // Er denne altfor omfattende? Kan jeg bare oppdatere activePlayer uten å iterere over players?
       if (player.name === activePlayer.name) {
-        return { ...player, selectedRoomSize: Number(newSize)};
-      }
+        return { ...player, 
+          selectedRoomSize: newSize,
+          availableBonuses: ["Bonus", ...bonuses],
+        };
+      };
       return player;
     }).find(player => player.name === activePlayer.name)); 
   }; // handleRoomSizeChange
@@ -204,7 +197,10 @@ function PlayCastles() {
   const handleRoomBonusChange = (newBonus) => {
     
     setPlayers(prevPlayers => prevPlayers.map(player =>
-      player.name === activePlayer.name ? { ...player, selectedRoomBonus: newBonus} : player // Kan jeg skrive denne på en annen måte? Hva er relasjone til syntakset brukt i 'filter'?
+      player.name === activePlayer.name ? { 
+        ...player, 
+        selectedRoomBonus: newBonus
+      } : player // Kan jeg skrive denne på en annen måte? Hva er relasjone til syntakset brukt i 'filter'?
     ));
 
     setActivePlayer(players.map(player => {
@@ -219,10 +215,21 @@ function PlayCastles() {
   const addRoom = () => { 
     console.log("-------------> Adding room");
     if(activeRoom){
+      // Calculating bonus if added room is "Downstairs"
+      let downstairsBonus = 0;
+      if(activeRoom.category === "Downstairs") {
+        for (let i = 0; i < activePlayer.roomsArray.length; i++) { //regner ikke med rommet som legges til
+          if (activePlayer.roomsArray[i].category === activeRoom.bonus) {
+            downstairsBonus += activeRoom.bonusValue;
+            console.log("Bonus added: ", activeRoom.bonusValue);
+          };
+        };
+      };
+      // Adding room 
       setPlayers(prevPlayers => prevPlayers.map(player => // Unngå crash når ikke alle variable er valgt
         player.name === activePlayer.name ? { // Note: Her brukes ternary i stedet for if.
           ...player,
-          scoresArray: [ ...player.scoresArray, activeRoom.value], 
+          scoresArray: [ ...player.scoresArray, activeRoom.value + downstairsBonus], 
           roomsArray: [...player.roomsArray, activeRoom],
           selectedRoomCategory: "Category", // Resetter dropdowns
           selectedRoomSize: "Size",
@@ -233,13 +240,35 @@ function PlayCastles() {
       console.log("INDEXOF: ", castleRooms.current.indexOf(activeRoom)); // Sjekker at rommet faktisk finnes i castleRooms
       console.log("Lengde av castleRooms: ", castleRooms.current.length); // Undersøker at lengden av castleRooms reduseres
       castleRooms.current.splice(castleRooms.current.indexOf(activeRoom), 1); //Fjerner activeRoom fra castleRooms (Trenger den en dobbelsjekk av at activeRoom finnes i castleRooms?)
-      const addDownstairsBonus = activePlayer.roomsArray // Legger til bonuser fra aktuelle tidligere "Downstairs" rom 
-      .filter(room => room.category === "Downstairs" && room.bonus === activePlayer.roomsArray.at(-1).category) //filtrerer ut rom fra roomsarray som har bonus tilscarende kategorien til siste rom som er lagt til
-      .reduce((acc, room) => acc + room.bonusValue, 0); // Summerer opp bonusene til alle aktuelle downstairs rooms (Bør heller legges til de individuelle rommene)
-      updateTotalScore(activeRoom.value + addDownstairsBonus);
+      //updating the scoresArray(s) with downstairs bonus(es) if applicable
+      const downstairsRoomsWithBonus = activePlayer.roomsArray
+      .filter(room => room.category === "Downstairs" && room.bonus === activeRoom.category); // Plukker ut downstairs rooms med relevant bonus
+      console.log("activePlayer.roomsArray.at(-1).category", activeRoom.category);
+      console.log("downstairsRoomsWithBonus", downstairsRoomsWithBonus);
+      for (let i = 0; i < downstairsRoomsWithBonus.length; i++) {
+        const downstairsIndex = activePlayer.roomsArray.indexOf(downstairsRoomsWithBonus[i]);
+        let updatedScoresArray = activePlayer.scoresArray;
+        updatedScoresArray.splice(downstairsIndex, 1, activePlayer.scoresArray[downstairsIndex] + activePlayer.roomsArray[downstairsIndex].bonusValue);
+        setPlayers(prevPlayers => prevPlayers.map(player => 
+          player.name === activePlayer.name ? {
+            ...player,
+            scoresArray: updatedScoresArray,
+          } : player));
+        setActivePlayer(prevPlayer => ({
+          ...prevPlayer,
+          scoresArray: updatedScoresArray,
+        }));
+      };
+      // const addDownstairsBonus = activePlayer.roomsArray // Legger til bonuser fra aktuelle tidligere "Downstairs" rom 
+      // .filter(room => room.category === "Downstairs" && room.bonus === activePlayer.roomsArray.at(-1).category) //filtrerer ut rom fra roomsarray som har bonus tilsvarende kategorien til siste rom som er lagt til
+      // .reduce((acc, room) => acc + room.bonusValue, 0); // Summerer opp bonusene til alle aktuelle downstairs rooms (Bør heller legges til de individuelle rommene)
+      // updateTotalScore(activeRoom.value + addDownstairsBonus);
+
     } else {
       displayToast(); // Viser Toast-melding om at gyldig rom ikke er valgt. (Bør meldingen skrives i denne funksjonen?)
     };
+    // setter focus på 'End turn' knappen når rom er lagt til (det er kanskje teit? Lett å glemme exits og bonuser?)
+    endTurnFocus.current.focus();
   }; //addRoom
 
   const endTurn = () => { 
@@ -247,14 +276,14 @@ function PlayCastles() {
     setPlayers(prevPlayers => prevPlayers.map(player => 
       player.name === activePlayer.name ? { 
       ...player, 
-      // Bør totalScore justeres her? Tror den heller bør justeres fortløpende
       roomAdded: false, 
     } : player))
     const currentIndex = players.findIndex(player => player.name === activePlayer.name); // potensielle sync-issues?
     const nextIndex = (currentIndex + 1) % players.length; 
     setActivePlayer(players[nextIndex]);
-    console.log("SCORESARRAY", activePlayer.scoresArray) // Funker, men displayes ikke umiddebart i console
-    console.log("ROOMSARRAY", activePlayer.roomsArray.length) // Funker, men displayes ikke umiddebart i console
+    setClickedPlayerIndex(nextIndex);
+    // console.log("SCORESARRAY", activePlayer.scoresArray) // Funker, men displayes ikke umiddebart i console
+    // console.log("ROOMSARRAY", activePlayer.roomsArray.length) // Funker, men displayes ikke umiddebart i console
   }; //endTrun
 
 
@@ -264,7 +293,7 @@ function PlayCastles() {
     const updatedPlayers = players.map(player => {
       let newRoomsArray = [...player.roomsArray]; // bruke prevRoomsArray? Unngå 'let' 
       if (player.selectedRoom !== null) { // skal det være != eller !==
-        newRoomsArray.push(player.selectedRoom) //Må flyttes til addRoom - done?
+        newRoomsArray.push(player.selectedRoom) 
       }; // endre til immutable? - push er ikke bra, erstatt
     //setPlayers(players.map(player => ({ ...player, 
       return{
@@ -277,18 +306,7 @@ function PlayCastles() {
     });
     setPlayers(updatedPlayers)
   };
-/* SE OM DENNE KAN ERSTATTE DEN OVER
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    setPlayers(players.map(player => ({
-      ...player,
-      roomsArray: player.selectedRoom ? [...player.roomsArray, player.selectedRoom] : [...player.roomsArray],
-      selectedRoomCategory: "Category",
-      selectedRoomSize: 0,
-      selectedRoomBonus: "Bonus"
-    })));
-  };*/
-  
+
   // Skal gi en melding om at rom ikke er valgt.
   // Kan den ligge her utenfor return-statementen?
   const [showToast, setShowToast] = useState(false);
@@ -316,7 +334,7 @@ function PlayCastles() {
   };
   
   const [clickedRoom, setClickedRoom] = useState(null); // Brukes den?
-  const [clickedRoomIndex, setClickedRoomIndex] = useState(1);  // useState(null)
+  const [clickedRoomIndex, setClickedRoomIndex] = useState(1);  // useState(null) hvorfor er den '1'? Hva med '0'?
   const [clickedPlayerIndex, setClickedPlayerIndex] = useState(1); // useState(null)
 
 
@@ -734,6 +752,8 @@ function PlayCastles() {
     };
   };
 
+  const endTurnFocus = useRef(null)
+
   const [isModalOpen, setIsModalOpen] = useState(false); 
 
   // MODAL (lær mer om Modal, isOpen, onClose, children)
@@ -865,7 +885,7 @@ function PlayCastles() {
   const focusPlayer1 = useRef(null);
 
   useEffect( () => {
-    focusPlayer1.current.focus();
+    //focusPlayer1.current.focus();
   }, []);
 
   const [randomStartingPlayer, setRandomStartingPlayer] = useState(true);
@@ -929,13 +949,14 @@ function PlayCastles() {
     console.log("Final radom player order: ", randomPlayerOrder, arrayOfPlayers);
     setPlayers(setupPlayers);
     setActivePlayer(setupPlayers[0]);
+    setClickedPlayerIndex(0);
     // Fjerner Starting-rooms, slik at de ikke kan velges i spillet (avhnger av at de ligger etter hverandre i castle_rooms.json)
     castleRooms.current.splice(castleRooms.current.indexOf(castleRooms.current.find(room => room.size === 125)), 4);
   }); //setupGame
 
   // Skal sette focus på "Start game" button nåt den blir aktiv. (Kanskje jeg ikke skal bruke den som en useEffect?)
   useEffect( () => {
-    startGameRef.current.focus();
+    //startGameRef.current.focus();
   },[disableStartGameButton]); // listen to disableStartGameButton?
 
   const startGameRef = useRef(null);
@@ -1046,7 +1067,7 @@ function PlayCastles() {
                     {/*<Toast message="No actual room selected" show={showToast}/>*/}
                   </td>
                   <td>
-                  {player.name === activePlayer.name && <button type='button' onClick={() => {endTurn(); setCorridorbonusesUsed(0)}}>End Turn</button>}
+                  {player.name === activePlayer.name && <button ref={endTurnFocus} type='button' onClick={() => {endTurn(); setCorridorbonusesUsed(0)}}>End Turn</button>}
                   </td>
                 </tr>
                 
@@ -1066,7 +1087,7 @@ function PlayCastles() {
                               setClickedRoomIndex(player.roomsArray.indexOf(room)); // Hvis det er flere like rom i roomsArray, feiler denne.
                               setIsModalOpen(true);
                             }}>
-                            {console.log(`${room.category}-${room.size}-${room.bonus}-${room.roomName}.jpg`)}
+                            {/* console.log(`${room.category}-${room.size}-${room.bonus}-${room.roomName}.jpg`) */}
                             <img src={findImageFile(room.category, room.size, room.bonus, room.roomName)} alt={`${room.category} room of size ${room.size}`} style={{width: '100%'}} />
                           </button>
                         </div>

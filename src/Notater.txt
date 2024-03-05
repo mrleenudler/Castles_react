@@ -8,34 +8,37 @@ emne: 10501332 <- lånenummer eller søknadsnummer elns.
 _______________________________________________________________________________________________
 IMPLEMENTERES NÅ
 
+==> husk å re-enable focus
 
-
--> categories variabelen skal erstattes.
-
-
--> Romkategorier som er helt tomme, kan fjernes. availebleCategories stateVariable?
--> useEffect for setActiveRoom, har den tilfredsstillende logikk for å velge bonuser?
-
--> focus på player 1 er borte. //focusPlayer1.current.focus();
--> Legg til 'focus' for 'End turn' når rom er lagt til.
 
 ->Downstairs bonus capper, det skal den ikke. Den skal faktisk ikke kunne legge til bonuser, dert ordnes automatisk.
+	-> totalScore må oppdateres ved å summere scoresarray
+updateTotalScore() skal kanskje erstattes.
 
--> Sett castleRooms som state-variable eller ref
-=> Fjerne dropdowns for rom-egenskaper som ikke eksisterer; Kanskje ikke vise dem før de er bekreftet??
-=> Fjerne rom fra castlesRooms når de legges til player.roomsArray
-	.filter eller .reduce for å sortere ut aktuelle størrelser og bonuser (erstatt størrelsesmatrisen)	
+	-> Kan også legge det til totalScore, men tror det er bedre å redesigne den til å summere scoresArray.
+-> setClickedPlayerIndex kan endres til activePlayerIndex og settes i endTurn() og ved setup.
+
+
+Cannot read properties of undefined (reading 'selectedRoomCategory')
+-> Når size velges
+-> Må activePlayer settes tidligere?
+-> Blir activePlayer satt feil??
+=> Let i handleRoomSizeChange
+
 -> Stairs og corridors må finnes i riktig antall (aktuelt med en counter?)
 
--> Fjern knapper for rom når !activeplayer
 
+-> useEffect for setActiveRoom kan lytte til 'player.availableBonuses'
+
+-> Prøv å sette focus på activePlayer.category
+-> Staris of hallways skal ikke fjernes fra castleRooms
+-> Hallways og små runde rom har samme størrelse -> problemer for imageSize.
 -> Const addRoom() legger til score på feil sted, den må legges til riktig downstairs room. *Den oppdaterer totalScore også, men den bør oppdateres ved å summere scoresArray.
 -> Test at alle rommene dislplayer korrekt ved å loope gjennom "id"
-	-> Rett opp i "id" (de er ikke i rekkefølge eller unike)
+	-> Rett opp i "id" (de er ikke i rekkefølge eller unike)(elle slett egenskapen)
 -> Kontroller at bonus fungerer for Downstairs og Utility rom med bare 1 exit.
 -> Vurder om rommene skal stå vertikalt
 
--> Juster imageSize matrisen (eventuelt legg til som property i rommet)
 -> Endre navnet på Modal til handleRoomModal eller noe slikt.
 "What is semantic html?"
 "If the displayed bonus depends on certain conditions, make sure the content (text, image src, alt text) is managed dynamically, possibly by passing them as props or using state/context for more complex scenarios."
@@ -44,14 +47,12 @@ IMPLEMENTERES NÅ
 => "Click rooms that gain bonuses or penalties or have exits closed" 
 -> html placeholder="someString"
 => scoresArray må henge visuelt sammen med roomsArray
--> Legg til bedre bilder for rom og bonuser
--> roomsArray[0] = Starting_room_color må legges til ved oppstart, og scoresArray[0] = 0.
+-> Legg til bedre bilder for bonuser
 -> setClickedRoom(player.roomsArray.indexOf()) feiler hvis det er flere ulike rooms i arrayet
 	->Fix: Kun unike rooms kan legges til (hører til dropdown-improvement)
 	-> (Alternativ fix: endre algoritmen for å finne riktig rom; er det i det hele tatt mulig?)
 -> "Adjust exits and room bonuses" må displayes på en bedre måte -> Toast
 -> "play_castles.jsx:971 Warning: Each child in a list should have a unique "key" prop."
--> Når jeg velger flere utility-300 rooms, roter det med bonus-dropdown.
 
 react-dom.development.js:86 Warning: Encountered two children with the same key, `Corridor`. 
 	-> Kommer av lik bonus.
@@ -77,9 +78,8 @@ Skaler bildene med logikk -> Sjekk skalering og juster etter behov
 -> Må kunne velge pass(EndTurn) (ta penger og ikke velge rom -> Bør gi en advarsel-popup)
 -> activateRoomBonus-Downstairs har en dobbel <div> - undersøk
 -> Undo funksjonalitet for addRoom og endTurn
--> Undersøk relasjonen meoom activePlayer og players[clickedPlayerIndex]
 -> Knapper(Add room) og dropdowns til ikke-aktive spillere, blir de både disablet og usynlige? Unødvendig mye kode?
-
+-> 'End turn' kan sette fokus på 'Category'
 -> Undersøk isOpen vs isModalOpen
 -> handleChangeCategory -> useEffect[activePlayer] -> useEffect[activeRoom]
 => Implementer functional updates: setVariable(prevVariable => newVariable)
@@ -106,9 +106,8 @@ Vil at score lagrer alle rundene til senere
 toast slide-out er ikke implementert. mer jobb enn forventet. Vurder å fikse senere. 
 Toasten kan plasseres i en reactDOM.portal -> implementeres senere
 
-Justere listen over tilgjengelige størrelser og bonuser på rommene --> Hører til romhåndteringern
-Brukte rom fjernes fra valg
 
+-> Skille mellom ellers like rom(?) -> Checkbox for room-name
 F5/reload må ikke slette gamet.
 Legg til bonus i json -> Eventuelt fjerne availableBonuses (kontroller for identiske rom)
 "Category" og "Bonus" skal være unselectable (hvor viktig er det?) (bruk html-tag 'placeholder')
@@ -117,8 +116,9 @@ Flytt all CSS-koden over i egen fil.
 Spør etter ytterlige forbedringer, spesielt elementer som avverger potesielt dårlig formatering (eks overflow: auto) Også: fjern unødvendig formatering (best å ikke introdusere den?)
 ________________________________________________________________________________________
 KJEKT Å HA
+-> Fjern knapper for rom når !activeplayer
 -> Outdoor-250-Utility er skeiv.
--> Skille mellom ellers like rom(?) -> Tror ikke jeg vil det, vil degradere UX.
+
 -> Se gjennom Z-indekser og gjør bevisste valg.
 -> Sjekk at det er ; over alt der det skal være
 -> Se gjennom logikken til activePlayer
@@ -144,6 +144,8 @@ Også, når jeg saver, før jeg reloader, printes rommene to ganger(samsvarer me
 
 -> Statistikk over soverom-bonusen: Når et soverom er fullført, hvor mange tomt-room-deck-poeng får spilleren? Hvert antall soverom må få sitt eget gjennomsnitt.
 -> Modifisere manifest.json
+-> Romkategorier som er helt tomme, kan fjernes. availebleCategories stateVariable?
+
 
 
 

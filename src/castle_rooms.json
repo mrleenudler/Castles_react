@@ -29,7 +29,7 @@
         "id": 3,
         "category": "Sleep",
         "size": 200,
-        "bonus": "Utility",
+        "bonus": "Food",
         "roomName": "Dressing_room",
         "exits": 2,
         "openExits": 1,
