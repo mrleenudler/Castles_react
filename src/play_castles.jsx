@@ -243,8 +243,6 @@ function PlayCastles() {
       //updating the scoresArray(s) with downstairs bonus(es) if applicable
       const downstairsRoomsWithBonus = activePlayer.roomsArray
       .filter(room => room.category === "Downstairs" && room.bonus === activeRoom.category); // Plukker ut downstairs rooms med relevant bonus
-      console.log("activePlayer.roomsArray.at(-1).category", activeRoom.category);
-      console.log("downstairsRoomsWithBonus", downstairsRoomsWithBonus);
       for (let i = 0; i < downstairsRoomsWithBonus.length; i++) {
         const downstairsIndex = activePlayer.roomsArray.indexOf(downstairsRoomsWithBonus[i]);
         let updatedScoresArray = activePlayer.scoresArray;
@@ -796,15 +794,15 @@ function PlayCastles() {
             <span>Open exits</span><span style={{float:'right'}}>Room bonus</span>
           </div>
           <div>
-            <button disabled={players[clickedPlayerIndex].roomsArray[clickedRoomIndex].openExits === 0} onClick={() => adjustOpenExits(-1)}>-</button>{/* increment og decrement kan sannsynligvis slås sammen til én metode */}
+            <button disabled={players[clickedPlayerIndex].roomsArray[clickedRoomIndex].openExits === 0} onClick={() => adjustOpenExits(-1)}>-</button>
             <span style={{fontSize: '18px'}}><b> {players[clickedPlayerIndex].roomsArray[clickedRoomIndex].openExits} </b></span>
             <button disabled={players[clickedPlayerIndex].roomsArray[clickedRoomIndex].openExits === players[clickedPlayerIndex].roomsArray[clickedRoomIndex].exits - 1
             || players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus} onClick={() => adjustOpenExits(1)}>+</button>
-            <span style={{float:'right', fontSize: '18px'}}>
+            {clickedRoom.category !== "Downstairs" && <span style={{float:'right', fontSize: '18px'}}>
               <button disabled={players[clickedPlayerIndex].roomsArray[clickedRoomIndex].bonusesAchieved === 0} onClick={() => adjustRoomBonus(-1)}>-</button>
               <b> {players[clickedPlayerIndex].roomsArray[clickedRoomIndex].bonusValue} x {players[clickedPlayerIndex].roomsArray[clickedRoomIndex].bonusesAchieved} </b>
               <button disabled={ !(players[clickedPlayerIndex].roomsArray[clickedRoomIndex].category === "Activity") && players[clickedPlayerIndex].roomsArray[clickedRoomIndex].bonusesAchieved === players[clickedPlayerIndex].roomsArray[clickedRoomIndex].exits} onClick={() => adjustRoomBonus(1)}>+</button>
-              </span>
+              </span>}
           </div >
           <div style={{ display: 'flex', justifyContent: 'center' }}>
             <button ref={okButtonRef} onClick={onClose} disabled={disableModalOKbutton}>OK</button>{/* Hva er onClose? setter isModalOpen=false i <Modal>?*/}
@@ -1007,8 +1005,8 @@ function PlayCastles() {
             <Modal isOpen={isModalOpen} onClose={ () => setIsModalOpen(false)}>
               {/* Legg til exit og bonus-handling i players[index].roomsArray[index].openExits / ...bonusesAchieved => setPlayers i egen handler funksjon*/}
                   <span>
-                    <img src={`${clickedRoom.category}-${clickedRoom.size}-${clickedRoom.bonus}.jpg`} style={{width: imageSize[clickedRoom.size] * 3}} alt="selectedRoom" />
-                    <img src={`${clickedRoom.category}-${clickedRoom.size}-${clickedRoom.bonus}.jpg`} style={{width: imageSize[clickedRoom.size] * 3}} alt="selectedRoom" />
+                    <img src={`${clickedRoom.category}-${clickedRoom.size}-${clickedRoom.bonus}-${clickedRoom.roomName}.jpg`} style={{width: imageSize[clickedRoom.size] * 3}} alt="selectedRoom" />
+                    <img src={`${clickedRoom.category}-${clickedRoom.size}-${clickedRoom.bonus}-${clickedRoom.roomName}.jpg`} style={{width: imageSize[clickedRoom.size] * 3}} alt="selectedRoom" />
                   </span>
             </Modal>
           )}

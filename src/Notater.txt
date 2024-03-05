@@ -10,6 +10,10 @@ IMPLEMENTERES NÅ
 
 ==> husk å re-enable focus
 
+-> Fant ikke activity room (200?)
+
+
+-> Bildenfe i modalen er feil - mangler sikkert room_name
 
 ->Downstairs bonus capper, det skal den ikke. Den skal faktisk ikke kunne legge til bonuser, dert ordnes automatisk.
 	-> totalScore må oppdateres ved å summere scoresarray
@@ -60,6 +64,9 @@ react-dom.development.js:86 Warning: Encountered two children with the same key,
 ________________________________________________________________________________________________
 IMPLEMENTERES SENERE
 
+-> Modal OK-button er false for "Downstairs" room med bare 1 exit -> får ikke lukket modalen.
+	-> Ingen retrett mulighet -> Dårlig UX
+	-> Bonus trigges når rommet klikkes på.
 -> Sjekk om Useeffect for 'esc' key trenger onClose listener
 -> poengene i scoresArray kan plasseres oppå rommene i roomsArray (Bedre for mobil)
 -> setActivePlayer bruker ikke prevPlayers
@@ -118,7 +125,7 @@ ________________________________________________________________________________
 KJEKT Å HA
 -> Fjern knapper for rom når !activeplayer
 -> Outdoor-250-Utility er skeiv.
-
+-> Antall downstairs bonuser kan displayes, men ikke justeres.
 -> Se gjennom Z-indekser og gjør bevisste valg.
 -> Sjekk at det er ; over alt der det skal være
 -> Se gjennom logikken til activePlayer
