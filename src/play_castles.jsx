@@ -93,14 +93,25 @@ function PlayCastles() {
 
 
   // Downstairs bonus oppdateres uavhengig av det aktuelle downstairs-rommet
-  const updateTotalScore = (addedScore) => { // må oppdateres ved added room(done) og changed bonus. + Update kjellerbonus
-    setPlayers(prevPlayers => prevPlayers.map( player => (
-      player.name === activePlayer.name ? {
+  // const updateTotalScore = (addedScore) => { // må oppdateres ved added room(done) og changed bonus. + Update kjellerbonus
+  //   setPlayers(prevPlayers => prevPlayers.map( player => (
+  //     player.name === activePlayer.name ? {
+  //       ...player,
+  //       totalScore: player.totalScore + addedScore,
+  //     } : player
+  //   )));
+  // }; // kanskje fjerne denne
+
+  const updateTotalScore = () => {
+    const sum = players[clickedPlayerIndex].scoresArray.reduce((acc, score) => acc + score, 0);
+    setPlayers(prevPlayers => prevPlayers.map(player => 
+      player.name === players[clickedPlayerIndex].name ? 
+      {
         ...player,
-        totalScore: player.totalScore + addedScore,
-      } : player
-    )));
-  }; // kanskje fjerne denne
+        totalScore: sum
+      } : player 
+    ));
+  };
 
   const getPlayerBackgroundColor = (color) => {
     if (color === 'Red' && activePlayer.color === 'Red') {
@@ -265,6 +276,7 @@ function PlayCastles() {
     } else {
       displayToast(); // Viser Toast-melding om at gyldig rom ikke er valgt. (Bør meldingen skrives i denne funksjonen?)
     };
+    updateTotalScore();
     // setter focus på 'End turn' knappen når rom er lagt til (det er kanskje teit? Lett å glemme exits og bonuser?)
     endTurnFocus.current.focus();
   }; //addRoom
@@ -387,7 +399,6 @@ function PlayCastles() {
         scoresArray: player.scoresArray.map((score, sindex) => 
           sindex === clickedRoomIndex ? score + 5 * Number(complete) - 5 * !Number(complete) : score)
     } : player));
-    updateTotalScore(5);
   };
 
   // Enabler 'addRoom' knappen (food bonus) når 'Confirm' klikkes
@@ -452,12 +463,11 @@ function PlayCastles() {
     setPlayers(prevPlayers => {
       const downstairsActivityBonus = chosenBonusFromButton === "Activity" ? 5 : 0;
       const downstairsLivingBonus = chosenBonusFromButton === "Living" 
-      ? prevPlayers[clickedPlayerIndex].roomsArray.filter(
-      room => room.category === prevPlayers[clickedPlayerIndex].roomsArray[clickedRoomIndex].bonus).length // Re-scoreing downstairs bonus for all rooms
-      * prevPlayers[clickedPlayerIndex].roomsArray[clickedRoomIndex].bonusValue 
-      + players[clickedPlayerIndex].roomsArray[clickedRoomIndex].value : 0;
-      updateTotalScore(downstairsActivityBonus + downstairsLivingBonus); // Sender bonusen til totalScore
-      // Scorer dette kjellerrommet om igjen med nåværende bonus. Påvirker ikke bonuser som legges til senere(Burde den? Hva sier reglene?).
+        ? prevPlayers[clickedPlayerIndex].roomsArray.filter(
+        room => room.category === prevPlayers[clickedPlayerIndex].roomsArray[clickedRoomIndex].bonus).length // Re-scoreing downstairs bonus for all rooms
+        * prevPlayers[clickedPlayerIndex].roomsArray[clickedRoomIndex].bonusValue 
+        + players[clickedPlayerIndex].roomsArray[clickedRoomIndex].value : 0;
+      // Scorer dette kjellerrommet om igjen med nåværende bonus. Påvirker ikke bonuser som legges til senere(Burde den? Hva sier reglene? Dersom den skal gjøre det, må det gjøres en bonus-sjekk for å sjekke om bonusen skal dobles).
       return prevPlayers.map((player, index) => 
         index === clickedPlayerIndex ? {
           ...player,
@@ -1002,7 +1012,7 @@ function PlayCastles() {
         <h1>Castles Score Keeper</h1>
         <div>
           {clickedRoom && (
-            <Modal isOpen={isModalOpen} onClose={ () => setIsModalOpen(false)}>
+            <Modal isOpen={isModalOpen} onClose={ () => (setIsModalOpen(false), updateTotalScore())}>
               {/* Legg til exit og bonus-handling i players[index].roomsArray[index].openExits / ...bonusesAchieved => setPlayers i egen handler funksjon*/}
                   <span>
                     <img src={`${clickedRoom.category}-${clickedRoom.size}-${clickedRoom.bonus}-${clickedRoom.roomName}.jpg`} style={{width: imageSize[clickedRoom.size] * 3}} alt="selectedRoom" />

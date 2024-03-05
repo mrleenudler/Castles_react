@@ -13,8 +13,6 @@ IMPLEMENTERES NÅ
 -> Fant ikke activity room (200?)
 
 
--> Bildenfe i modalen er feil - mangler sikkert room_name
-
 ->Downstairs bonus capper, det skal den ikke. Den skal faktisk ikke kunne legge til bonuser, dert ordnes automatisk.
 	-> totalScore må oppdateres ved å summere scoresarray
 updateTotalScore() skal kanskje erstattes.
