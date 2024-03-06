@@ -8,41 +8,33 @@ emne: 10501332 <- lånenummer eller søknadsnummer elns.
 _______________________________________________________________________________________________
 IMPLEMENTERES NÅ
 
-==> husk å re-enable focus
 
+-> clickedPlayerIndex = useState(0)?
+-> clickedPlayerIndex --> activePlayerIndex
 
+-> Downstairs room med downstairs bonus registreres ikke korrekt.
 
-->Downstairs bonus capper, det skal den ikke. Den skal faktisk ikke kunne legge til bonuser, dert ordnes automatisk.
-	-> totalScore må oppdateres ved å summere scoresarray
-updateTotalScore() skal kanskje erstattes.
+-> Slett ett room fra Modal
 
-	-> Kan også legge det til totalScore, men tror det er bedre å redesigne den til å summere scoresArray.
--> setClickedPlayerIndex kan endres til activePlayerIndex og settes i endTurn() og ved setup.
+-> Grønn Toast farge må endres.
 
-
-Cannot read properties of undefined (reading 'selectedRoomCategory')
--> Når size velges
--> Må activePlayer settes tidligere?
--> Blir activePlayer satt feil??
-=> Let i handleRoomSizeChange
 
 -> Stairs og corridors må finnes i riktig antall (aktuelt med en counter?)
+	-> Pass på at Stairs of Hallways er unike, ellers virker ikke clickedRoomIndex.
+	-> Kanskje implementere en [--] knapp for hallways
+	-> Undersøk at corridor-bonus bare virket én gang pr turn
 
-
--> useEffect for setActiveRoom kan lytte til 'player.availableBonuses'
+-> useEffect for setActiveRoom kan lytte til 'player.availableBonuses' (tror ikke det funker)
 
 -> Prøv å sette focus på activePlayer.category
--> Staris of hallways skal ikke fjernes fra castleRooms
--> Hallways og små runde rom har samme størrelse -> problemer for imageSize.
--> Const addRoom() legger til score på feil sted, den må legges til riktig downstairs room. *Den oppdaterer totalScore også, men den bør oppdateres ved å summere scoresArray.
--> Test at alle rommene dislplayer korrekt ved å loope gjennom "id"
-	-> Rett opp i "id" (de er ikke i rekkefølge eller unike)(elle slett egenskapen)
--> Kontroller at bonus fungerer for Downstairs og Utility rom med bare 1 exit.
+-> Staris og hallways skal ikke fjernes fra castleRooms
+-> Hallways og små runde rom har samme areal -> problemer for imageSize.
+-> Test at alle rommene dislplayer korrekt ved å loope gjennom dem
+	-> Rett opp i "id" (de er ikke i rekkefølge eller unike)(eller slett egenskapen)
 -> Vurder om rommene skal stå vertikalt
 
 -> Endre navnet på Modal til handleRoomModal eller noe slikt.
 "What is semantic html?"
-"If the displayed bonus depends on certain conditions, make sure the content (text, image src, alt text) is managed dynamically, possibly by passing them as props or using state/context for more complex scenarios."
 -> Alerts kan trigges av Modal-OK-knappen (eller av +/- knappene) (alert for increased openExits & decreased bonuses)
 
 => "Click rooms that gain bonuses or penalties or have exits closed" 
@@ -61,6 +53,7 @@ react-dom.development.js:86 Warning: Encountered two children with the same key,
 ________________________________________________________________________________________________
 IMPLEMENTERES SENERE
 
+-> Se gjennom bruke av useEffect for performance reasons.
 -> Modal OK-button er false for "Downstairs" room med bare 1 exit -> får ikke lukket modalen.
 	-> Ingen retrett mulighet -> Dårlig UX
 	-> Bonus trigges når rommet klikkes på.
@@ -120,6 +113,7 @@ Flytt all CSS-koden over i egen fil.
 Spør etter ytterlige forbedringer, spesielt elementer som avverger potesielt dårlig formatering (eks overflow: auto) Også: fjern unødvendig formatering (best å ikke introdusere den?)
 ________________________________________________________________________________________
 KJEKT Å HA
+-> Rydd opp i Toast-logikken
 -> Fjern knapper for rom når !activeplayer
 -> Outdoor-250-Utility er skeiv.
 -> Antall downstairs bonuser kan displayes, men ikke justeres.

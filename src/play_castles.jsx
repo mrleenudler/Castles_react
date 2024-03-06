@@ -63,24 +63,17 @@ function PlayCastles() {
 
   // Debug: fjernes
   useEffect( () => {
-    //const addRooms = [castleRooms.find(room => room.id === 31), castleRooms.find(room => room.id === 32), castleRooms.find(room => room.id === 33), castleRooms.find(room => room.id === 34)];
     const addRooms = [castleRooms.current.find(room => room.id === 4), 
       castleRooms.current.find(room => room.id === 31)];
-    //const firstRoom = castleRooms.find(room => room.id === 4); // Sleep-300-Living.jpg
-    //const secondRoom = castleRooms.find(room => room.id === 41); // Outdoor-600-Outdoor.jpg
-    //console.log("ADD ROOMS:", ...addRooms);
     setPlayers(prevPlayers => prevPlayers.map( player => ({
         ...player,
         roomsArray: [...player.roomsArray, ...addRooms], //roomsArray.length === 1
         scoresArray: [...player.scoresArray, 5, 5] 
     })));
-    // console.log("TESTROM: ", players.map(player => player.roomsArray[1].category)); // async
   }, []); // Kun for test. Fjernes senere.
 
   // Ser etter activeRoom når noe endres
   useEffect( () => {
-    //console.log("ActivePlayer changed -> Setting activeRoom", activePlayer.name);
-    //console.log("activePlayer.selectedRoomCategory: ", activePlayer.selectedRoomCategory);
     setActiveRoom(castleRooms.current.find(room => 
       room.category === activePlayer.selectedRoomCategory 
       && room.size === activePlayer.selectedRoomSize 
@@ -92,26 +85,17 @@ function PlayCastles() {
   }, [activePlayer]);
 
 
-  // Downstairs bonus oppdateres uavhengig av det aktuelle downstairs-rommet
-  // const updateTotalScore = (addedScore) => { // må oppdateres ved added room(done) og changed bonus. + Update kjellerbonus
-  //   setPlayers(prevPlayers => prevPlayers.map( player => (
-  //     player.name === activePlayer.name ? {
-  //       ...player,
-  //       totalScore: player.totalScore + addedScore,
-  //     } : player
-  //   )));
-  // }; // kanskje fjerne denne
-
-  const updateTotalScore = () => {
+  const updateTotalScore = (addScore) => {
     const sum = players[clickedPlayerIndex].scoresArray.reduce((acc, score) => acc + score, 0);
     setPlayers(prevPlayers => prevPlayers.map(player => 
       player.name === players[clickedPlayerIndex].name ? 
       {
         ...player,
-        totalScore: sum
+        totalScore: sum + addScore
       } : player 
     ));
-  };
+  }; // får ikke med siste rommet. Tror det er løst nå
+  // Sjekk at endringer i bonuser (activity) kommer med.
 
   const getPlayerBackgroundColor = (color) => {
     if (color === 'Red' && activePlayer.color === 'Red') {
@@ -121,7 +105,7 @@ function PlayCastles() {
     } else if (color === 'Orange' && activePlayer.color === 'Orange') {
       return 'rgba(255, 250, 205, 0.5)'; 
     } else if (color === 'Green' && activePlayer.color === 'Green') {
-      return 'rgba(152, 251, 152, 0.4)'; // Litt kraftig, prøver mer gjennomsiktighet
+      return 'rgba(222, 252, 226, 0.5)'; // Litt kraftig, prøver mer gjennomsiktighet
     } else {
       return 'rgba(240, 240, 245, 0.5)'; // Even lighter gray with transparency for non-active players
     };
@@ -225,14 +209,18 @@ function PlayCastles() {
   // Legger et rom til roomsArray og oppdaterer scoresArray
   const addRoom = () => { 
     console.log("-------------> Adding room");
+    let downstairsBonus = 0;
     if(activeRoom){
       // Calculating bonus if added room is "Downstairs"
-      let downstairsBonus = 0;
+      // let downstairsBonus = 0; // Har flyttet denne opp.
       if(activeRoom.category === "Downstairs") {
         for (let i = 0; i < activePlayer.roomsArray.length; i++) { //regner ikke med rommet som legges til
           if (activePlayer.roomsArray[i].category === activeRoom.bonus) {
             downstairsBonus += activeRoom.bonusValue;
             console.log("Bonus added: ", activeRoom.bonusValue);
+          };
+          if (activeRoom.bonus === "Downstairs") {
+            downstairsBonus += activeRoom.bonusValue;
           };
         };
       };
@@ -248,8 +236,6 @@ function PlayCastles() {
           roomAdded: true, // 'Add room' knappen disables etter bruk. Re-enables ved Food-bonus
         } : player
       ));
-      console.log("INDEXOF: ", castleRooms.current.indexOf(activeRoom)); // Sjekker at rommet faktisk finnes i castleRooms
-      console.log("Lengde av castleRooms: ", castleRooms.current.length); // Undersøker at lengden av castleRooms reduseres
       castleRooms.current.splice(castleRooms.current.indexOf(activeRoom), 1); //Fjerner activeRoom fra castleRooms (Trenger den en dobbelsjekk av at activeRoom finnes i castleRooms?)
       //updating the scoresArray(s) with downstairs bonus(es) if applicable
       const downstairsRoomsWithBonus = activePlayer.roomsArray
@@ -258,6 +244,7 @@ function PlayCastles() {
         const downstairsIndex = activePlayer.roomsArray.indexOf(downstairsRoomsWithBonus[i]);
         let updatedScoresArray = activePlayer.scoresArray;
         updatedScoresArray.splice(downstairsIndex, 1, activePlayer.scoresArray[downstairsIndex] + activePlayer.roomsArray[downstairsIndex].bonusValue);
+        downstairsBonus += activePlayer.roomsArray[downstairsIndex].bonusValue;
         setPlayers(prevPlayers => prevPlayers.map(player => 
           player.name === activePlayer.name ? {
             ...player,
@@ -268,15 +255,13 @@ function PlayCastles() {
           scoresArray: updatedScoresArray,
         }));
       };
-      // const addDownstairsBonus = activePlayer.roomsArray // Legger til bonuser fra aktuelle tidligere "Downstairs" rom 
-      // .filter(room => room.category === "Downstairs" && room.bonus === activePlayer.roomsArray.at(-1).category) //filtrerer ut rom fra roomsarray som har bonus tilsvarende kategorien til siste rom som er lagt til
-      // .reduce((acc, room) => acc + room.bonusValue, 0); // Summerer opp bonusene til alle aktuelle downstairs rooms (Bør heller legges til de individuelle rommene)
-      // updateTotalScore(activeRoom.value + addDownstairsBonus);
-
+      setToastMessage({message: "Click rooms that gain bonuses or penalties, or have exits closed", color: '#76de83'});
+      displayToast();
     } else {
+      setToastMessage({message: "Please select an actual room", color: '#f0ad4e'});
       displayToast(); // Viser Toast-melding om at gyldig rom ikke er valgt. (Bør meldingen skrives i denne funksjonen?)
     };
-    updateTotalScore();
+    updateTotalScore(downstairsBonus + activeRoom.value); // Downstairs bonus inneholder både verdiene til nyeste downstairs room, og oppdaterte verdier for tidligere downstairs rooms.
     // setter focus på 'End turn' knappen når rom er lagt til (det er kanskje teit? Lett å glemme exits og bonuser?)
     endTurnFocus.current.focus();
   }; //addRoom
@@ -321,23 +306,24 @@ function PlayCastles() {
   // Kan den ligge her utenfor return-statementen?
   const [showToast, setShowToast] = useState(false);
 
+  const [toastMessage, setToastMessage] = useState({message: "Hei", color: 'yellow'});
+
   const Toast = ({ message, show }) => {
     if (!show) return null;
   
     return (
-      <div className="toast">
+      <div className="toast" style={{backgroundColor: toastMessage.color}}>
         {message}
       </div>
     );
   };
   
-// Alternativt Modal (Bruk Modal til bonuser og exits)
-
   const displayToast = () => {
+    console.log("Toast: ", toastMessage.message, toastMessage.color);
     setShowToast(true);
     setTimeout(() => {
       setShowToast(false);
-    }, 1500); // Hide toast after 1.5 seconds
+    }, 2500); // Hide toast after 2.5 seconds
     // setTimeout(() => { //TOAST
     //   toastElement.classList.add('slide-out');
     // }, 3000); // Adjust the delay as needed (For fade-out effect)
@@ -740,14 +726,8 @@ function PlayCastles() {
           </div>
         </div>
       );        
-    } else {
-      console.log("Skal ikke kjøre");
-      return (<div>DENNE MELDINGEN SKAL ALDRI VISES!</div>)
-    }
-  };
-  // "Downstairs": ["Size", 150, 250, 500],
-  // "Corridor": ["Size", 75, 151, 350], Må tillate å velge kun ny trapp eller korridor
-  
+    }; 
+  };  
   
   const findImageFile = (category, size, bonus, name) => { 
     if (size === 125) {
@@ -893,7 +873,7 @@ function PlayCastles() {
   const focusPlayer1 = useRef(null);
 
   useEffect( () => {
-    //focusPlayer1.current.focus();
+    focusPlayer1.current.focus();
   }, []);
 
   const [randomStartingPlayer, setRandomStartingPlayer] = useState(true);
@@ -958,13 +938,13 @@ function PlayCastles() {
     setPlayers(setupPlayers);
     setActivePlayer(setupPlayers[0]);
     setClickedPlayerIndex(0);
-    // Fjerner Starting-rooms, slik at de ikke kan velges i spillet (avhnger av at de ligger etter hverandre i castle_rooms.json)
+    // Fjerner Starting-rooms, slik at de ikke kan velges i spillet (avhenger av at de ligger etter hverandre i castle_rooms.json)
     castleRooms.current.splice(castleRooms.current.indexOf(castleRooms.current.find(room => room.size === 125)), 4);
   }); //setupGame
 
-  // Skal sette focus på "Start game" button nåt den blir aktiv. (Kanskje jeg ikke skal bruke den som en useEffect?)
+  // Skal sette focus på "Start game" button når den blir aktiv. (Kanskje jeg ikke skal bruke den som en useEffect?)
   useEffect( () => {
-    //startGameRef.current.focus();
+    startGameRef.current.focus();
   },[disableStartGameButton]); // listen to disableStartGameButton?
 
   const startGameRef = useRef(null);
@@ -1008,11 +988,11 @@ function PlayCastles() {
   } else if (gameStage === "Play") {
     return (
       <div>
-        <Toast message="Custom message" show={showToast}/>{/* Legg Toasten i en portal */}
+        <Toast message={toastMessage.message} show={showToast}/>{/* Legg Toasten i en portal */}
         <h1>Castles Score Keeper</h1>
         <div>
           {clickedRoom && (
-            <Modal isOpen={isModalOpen} onClose={ () => (setIsModalOpen(false), updateTotalScore())}>
+            <Modal isOpen={isModalOpen} onClose={ () => (setIsModalOpen(false), updateTotalScore(0))}>
               {/* Legg til exit og bonus-handling i players[index].roomsArray[index].openExits / ...bonusesAchieved => setPlayers i egen handler funksjon*/}
                   <span>
                     <img src={`${clickedRoom.category}-${clickedRoom.size}-${clickedRoom.bonus}-${clickedRoom.roomName}.jpg`} style={{width: imageSize[clickedRoom.size] * 3}} alt="selectedRoom" />
@@ -1037,8 +1017,6 @@ function PlayCastles() {
           {players.map(player => {
             return (
               <>
-                {player.roomAdded ? <tr><td colSpan="8" align="right">Adjust exits and room bonuses</td></tr> : null/*fade in overlay or toast*/}
-                
                 <tr key={player.name + "turn"} style={{backgroundColor: getPlayerBackgroundColor(player.color)}}>
                   <td style={{ color: player.color }}><b>{player.name}</b></td>
                   <td align="center">{player.totalScore}</td>
@@ -1091,7 +1069,7 @@ function PlayCastles() {
                               setClickedRoom(room); // Kan denne erstattes med en annen del? room.id? players[i].roomsArray[i].* må oppdateres
                               // Er det egentlig player index og roomsArray index jeg bør bruke?
                               // Bør indeksene settes til null etter bruk?
-                              setClickedPlayerIndex(players.indexOf(player));
+                              // setClickedPlayerIndex(players.indexOf(player)); // Tror denne er redundant
                               setClickedRoomIndex(player.roomsArray.indexOf(room)); // Hvis det er flere like rom i roomsArray, feiler denne.
                               setIsModalOpen(true);
                             }}>
@@ -1123,8 +1101,6 @@ function PlayCastles() {
           })}
           </tbody>
         </table>
-        <div><button onClick={() => displayToast()}>TEST</button>{players[1] && players[1].roomsArray && players[1].roomsArray.length > 1 ? players[1].roomsArray[0].category : 'No Category'}</div>
-          
       </div>
     ); // return
   }; // if gameStage === "Play"
