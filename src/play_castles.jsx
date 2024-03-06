@@ -228,7 +228,8 @@ function PlayCastles() {
       setPlayers(prevPlayers => prevPlayers.map(player => // Unngå crash når ikke alle variable er valgt
         player.name === activePlayer.name ? { // Note: Her brukes ternary i stedet for if.
           ...player,
-          scoresArray: [ ...player.scoresArray, activeRoom.value + downstairsBonus], 
+          scoresArray: [ ...player.scoresArray, activeRoom.value + downstairsBonus],
+          // VALUE et problem her?
           roomsArray: [...player.roomsArray, activeRoom],
           selectedRoomCategory: "Category", // Resetter dropdowns
           selectedRoomSize: "Size",
@@ -255,13 +256,13 @@ function PlayCastles() {
           scoresArray: updatedScoresArray,
         }));
       };
-      setToastMessage({message: "Click rooms that gain bonuses or penalties, or have exits closed", color: '#76de83'});
+      setToastMessage({message: "Click rooms that gain bonuses or penalties, or have exits closed", color: '#33bd4c'});
+      updateTotalScore(downstairsBonus + activeRoom.value); // Downstairs bonus inneholder både verdiene til nyeste downstairs room, og oppdaterte verdier for tidligere downstairs rooms.
       displayToast();
     } else {
       setToastMessage({message: "Please select an actual room", color: '#f0ad4e'});
       displayToast(); // Viser Toast-melding om at gyldig rom ikke er valgt. (Bør meldingen skrives i denne funksjonen?)
     };
-    updateTotalScore(downstairsBonus + activeRoom.value); // Downstairs bonus inneholder både verdiene til nyeste downstairs room, og oppdaterte verdier for tidligere downstairs rooms.
     // setter focus på 'End turn' knappen når rom er lagt til (det er kanskje teit? Lett å glemme exits og bonuser?)
     endTurnFocus.current.focus();
   }; //addRoom

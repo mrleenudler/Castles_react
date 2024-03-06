@@ -12,12 +12,10 @@ IMPLEMENTERES NÅ
 -> clickedPlayerIndex = useState(0)?
 -> clickedPlayerIndex --> activePlayerIndex
 
--> Downstairs room med downstairs bonus registreres ikke korrekt.
-
 -> Slett ett room fra Modal
 
--> Grønn Toast farge må endres.
-
+Toast warning select room funker ikke.
+Cannot read properties of undefined (reading 'value')
 
 -> Stairs og corridors må finnes i riktig antall (aktuelt med en counter?)
 	-> Pass på at Stairs of Hallways er unike, ellers virker ikke clickedRoomIndex.
