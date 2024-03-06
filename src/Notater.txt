@@ -14,8 +14,6 @@ IMPLEMENTERES NÅ
 
 -> Slett ett room fra Modal
 
-Toast warning select room funker ikke.
-Cannot read properties of undefined (reading 'value')
 
 -> Stairs og corridors må finnes i riktig antall (aktuelt med en counter?)
 	-> Pass på at Stairs of Hallways er unike, ellers virker ikke clickedRoomIndex.
