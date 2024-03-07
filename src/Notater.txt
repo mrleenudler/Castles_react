@@ -15,13 +15,11 @@ IMPLEMENTERES NÅ
 
 -> Slett ett room fra Modal
 
--> Hallways og små runde rom har samme areal -> problemer for imageSize.
-
 -> focus på start game er annoying, og må fjernes
 
 
 -> Stairs og corridors må finnes i riktig antall (aktuelt med en counter?)
-	-> Pass på at Stairs of Hallways er unike, ellers virker ikke clickedRoomIndex.
+	-> Pass på at Stairs og Hallways er unike, ellers virker ikke clickedRoomIndex.
 	-> Kanskje implementere en [--] knapp for hallways
 	-> Undersøk at corridor-bonus bare virket én gang pr turn
 
@@ -50,8 +48,9 @@ react-dom.development.js:86 Warning: Encountered two children with the same key,
 ________________________________________________________________________________________________
 IMPLEMENTERES SENERE
 
+-> Hallways og Stairs må finnes i begrenset antall (Enten counter eller i castleRooms)
 -> Checkbox and dropdown for roomName
-
+-> Hallways er size 149. Må tas hensyn til ved beregning av areal for corridors.
 => scoresArray må henge visuelt sammen med roomsArray
 -> Alerts kan trigges av Modal-OK-knappen (eller av +/- knappene) (alert for increased openExits & decreased bonuses)
 -> Se gjennom bruke av useEffect for performance reasons.
@@ -114,6 +113,8 @@ Flytt all CSS-koden over i egen fil.
 Spør etter ytterlige forbedringer, spesielt elementer som avverger potesielt dårlig formatering (eks overflow: auto) Også: fjern unødvendig formatering (best å ikke introdusere den?)
 ________________________________________________________________________________________
 KJEKT Å HA
+-> Sett scroll-position tilsvarende activeplayer for å unngå å måtte scrolle ned for player 4.
+-> Vurder layout for roomsArray/scoresArray. Kanskje scores skal displayes over rooms? Implikasjoner for potensiell mobil-app.
 -> Rydd opp i Toast-logikken
 -> Fjern knapper for rom når !activeplayer
 -> Outdoor-250-Utility er skeiv.

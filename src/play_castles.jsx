@@ -238,7 +238,9 @@ function PlayCastles() {
           roomAdded: true, // 'Add room' knappen disables etter bruk. Re-enables ved Food-bonus
         } : player
       ));
-      castleRooms.current.splice(castleRooms.current.indexOf(activeRoom), 1); //Fjerner activeRoom fra castleRooms (Trenger den en dobbelsjekk av at activeRoom finnes i castleRooms?)
+      if (activeRoom.roomName !== "Hallway" && activeRoom.roomName !== "Stairs") {
+        castleRooms.current.splice(castleRooms.current.indexOf(activeRoom), 1); //Fjerner activeRoom fra castleRooms (Trenger den en dobbelsjekk av at activeRoom finnes i castleRooms? Nei, tror ikke det.)
+      };
       //updating the scoresArray(s) with downstairs bonus(es) if applicable
       const downstairsRoomsWithBonus = activePlayer.roomsArray
       .filter(room => room.category === "Downstairs" && room.bonus === activeRoom.category); // Plukker ut downstairs rooms med relevant bonus
