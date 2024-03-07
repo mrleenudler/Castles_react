@@ -494,7 +494,7 @@
     {
         "id": 25,
         "category": "Corridor",
-        "size": 150,
+        "size": 149,
         "bonus": "",
         "roomName": "Hallway",
         "exits": 2,

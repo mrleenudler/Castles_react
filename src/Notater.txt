@@ -5,7 +5,8 @@ kjøpskontrakt sendes til
 saksbehandlind@sbankendnb.no
 emne: 10501332 <- lånenummer eller søknadsnummer elns.
 
-_______________________________________________________________________________________________
+slatestarcodex.com/2015/12/17/shoud-ai-be-open
+_______________________________________________________________________________________________//
 IMPLEMENTERES NÅ
 
 
@@ -14,6 +15,10 @@ IMPLEMENTERES NÅ
 
 -> Slett ett room fra Modal
 
+-> Hallways og små runde rom har samme areal -> problemer for imageSize.
+
+-> focus på start game er annoying, og må fjernes
+
 
 -> Stairs og corridors må finnes i riktig antall (aktuelt med en counter?)
 	-> Pass på at Stairs of Hallways er unike, ellers virker ikke clickedRoomIndex.
@@ -21,26 +26,22 @@ IMPLEMENTERES NÅ
 	-> Undersøk at corridor-bonus bare virket én gang pr turn
 
 -> useEffect for setActiveRoom kan lytte til 'player.availableBonuses' (tror ikke det funker)
+	-> Se om denne kan effektiviseres med kall fra handleSizeChange og handleBonusChange
 
 -> Prøv å sette focus på activePlayer.category
--> Staris og hallways skal ikke fjernes fra castleRooms
--> Hallways og små runde rom har samme areal -> problemer for imageSize.
 -> Test at alle rommene dislplayer korrekt ved å loope gjennom dem
 	-> Rett opp i "id" (de er ikke i rekkefølge eller unike)(eller slett egenskapen)
 -> Vurder om rommene skal stå vertikalt
 
 -> Endre navnet på Modal til handleRoomModal eller noe slikt.
 "What is semantic html?"
--> Alerts kan trigges av Modal-OK-knappen (eller av +/- knappene) (alert for increased openExits & decreased bonuses)
 
 => "Click rooms that gain bonuses or penalties or have exits closed" 
 -> html placeholder="someString"
-=> scoresArray må henge visuelt sammen med roomsArray
 -> Legg til bedre bilder for bonuser
 -> setClickedRoom(player.roomsArray.indexOf()) feiler hvis det er flere ulike rooms i arrayet
 	->Fix: Kun unike rooms kan legges til (hører til dropdown-improvement)
 	-> (Alternativ fix: endre algoritmen for å finne riktig rom; er det i det hele tatt mulig?)
--> "Adjust exits and room bonuses" må displayes på en bedre måte -> Toast
 -> "play_castles.jsx:971 Warning: Each child in a list should have a unique "key" prop."
 
 react-dom.development.js:86 Warning: Encountered two children with the same key, `Corridor`. 
@@ -49,6 +50,10 @@ react-dom.development.js:86 Warning: Encountered two children with the same key,
 ________________________________________________________________________________________________
 IMPLEMENTERES SENERE
 
+-> Checkbox and dropdown for roomName
+
+=> scoresArray må henge visuelt sammen med roomsArray
+-> Alerts kan trigges av Modal-OK-knappen (eller av +/- knappene) (alert for increased openExits & decreased bonuses)
 -> Se gjennom bruke av useEffect for performance reasons.
 -> Modal OK-button er false for "Downstairs" room med bare 1 exit -> får ikke lukket modalen.
 	-> Ingen retrett mulighet -> Dårlig UX
