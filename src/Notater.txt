@@ -10,17 +10,84 @@ ________________________________________________________________________________
 IMPLEMENTERES NÅ
 
 
+-> corridorBonusesUsed, skal den være 0/1 eller false/true 
+   (den skal avgjøre om en spiller har brukt sin corridorBonus denne runden. 
+   Skal den resettes ved endTurn?)
+
+WARNING skal bare displaye if(!corridorBonusUsed)
+
+DONE: !corridorBonusUsed && !completionBonus -> Lock / cancel
+TODO: !corridorBonusUsed && completionBonus -> Bonus brukt tidligere -> Display chosen bonus, OK-button only
+	Selected bonus: {room.chosenCorridorBonus}<br /> // Må være room.variable
+
+TODO: corridorBonusUsed && !completionBonus -> Yes / No
+
+TODO? corridorBonusUsed && completionBonus -> display bonus
+
+=> handle trigges av: 
+			<button> Lock bonus / Cancel
+			<button> Undo (?)
+
+-> handleCorridorRoomBonus(complete) 	-> setplayers(roomAdded: !complete, roomsArray.completionBonus: complete)
+					-> setCorridorBonusUsed(true)
+					==> Må adde bonusrom (DONE)
+
+-> radio-buttons koblet til: name="chosen_bonus" (endre name?)
+					-> onChange: setSelectedCorridorBonus
+
+L.712
+{(!corridorBonusesUsed || (players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus && corridorBonusesUsed === 1)) && <div>
+	-> Displayer Receive..., WARNING..., <button> Lock bonus </button>
+	-> Dersom clickedRooom.completionBonus && corridorBonusUsed
+	-> Hvorfor? For å kunne 'undo' corridorBonus? Prøver å fjerne denne delen av betingelsen.
+
+L.735          
+{((corridorBonusesUsed === 1 && !players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus) || corridorBonusesUsed > 1) &&<div>
+	-> Endrer til corridorBonusUsed && !completionBonus
+	-> "Close exit anyway"?
+		-> 'ok' / 'cancel'
+		-> openExits '+' button disables (?)
+		-> set completionBonus (no undo?) Har ingen måte å skille mellom corridorRooms som er lukket med eller uten bonus.
+
+-> 'Confirm' button fjernes.
+
+-> Corridor bonus radio button må disables dersom det er tomt for aktuelt rom (deafult rom "N/A")
+-> DownstairsBonus: Displayes 'Change choice' knappen på noe tidspunkt? 
+-> DownstairsBonus: Disables openExits '+' knappen?
+
+-> Alle rom som har completionBonus, bør de disable openExits? -> Nei
+	-> Activity room bonus kan enkelt reverseres. 
+		-> openExits for Activity room kan ikke manipuleres etter Confirm
+		-> Activity room logikken er utmerket!! <3
+	-> Living room bonus kan reverseres. Funker bra <3
+	-> Sleep og Outdoor room bonus går utenom koden
+FIX	-> Utility er auto-closed -> Vil ha bonus pop-up on play
+	-> Food room, assumes player integrity?
+		Kan trigge ny tur når som helst ved å manipulere openExits
+		-> openExits må låses for Food-rooms
+FIX		-> Eller Undo-button låses ved endTurn
+		-> completionBonus låses ved addRoom? Krever ekstra stateVariable? Ekstra foodRoom variable?
+	-> Downstairs rooms: bonus er locked, og exits kan ikke endres
+		-> Fungerer bra! <3
+	-> Corridor rooms: bonus er locked, men exits kan endres?
+
 -> clickedPlayerIndex = useState(0)?
 -> clickedPlayerIndex --> activePlayerIndex
 
 -> Slett ett room fra Modal
 
--> focus på start game er annoying, og må fjernes
+-> 'Undo' bonus bør sette openExits = 1
 
+-> focus på start game er annoying, og må fjernes
+-> Modal viser ikke bilde for Stairs (hva med Hallways?)(rotate 90)
+-> "Cancel" button for Downstairs og Corridor bonuses setter openExits = 1 og lukker modal.
+
+l. 711 
+	Confirm button -> setActiveRoom -> addRoom (ta inspirasjon fra downstairsBonus)
 
 -> Stairs og corridors må finnes i riktig antall (aktuelt med en counter?)
 	-> Pass på at Stairs og Hallways er unike, ellers virker ikke clickedRoomIndex.
-	-> Kanskje implementere en [--] knapp for hallways
+	-> Kanskje implementere en [--] knapp for hallways (Hallways openExits = 1)
 	-> Undersøk at corridor-bonus bare virket én gang pr turn
 
 -> useEffect for setActiveRoom kan lytte til 'player.availableBonuses' (tror ikke det funker)
@@ -34,7 +101,6 @@ IMPLEMENTERES NÅ
 -> Endre navnet på Modal til handleRoomModal eller noe slikt.
 "What is semantic html?"
 
-=> "Click rooms that gain bonuses or penalties or have exits closed" 
 -> html placeholder="someString"
 -> Legg til bedre bilder for bonuser
 -> setClickedRoom(player.roomsArray.indexOf()) feiler hvis det er flere ulike rooms i arrayet
@@ -48,6 +114,9 @@ react-dom.development.js:86 Warning: Encountered two children with the same key,
 ________________________________________________________________________________________________
 IMPLEMENTERES SENERE
 
+-> Dobbeltsjekk at starting-rooms fjernes fra castleRooms
+-> max adjacent room bonuses == number of closed exits
+-> max adjacent room bonuses == number of bonus-rewarding rooms in play
 -> Hallways og Stairs må finnes i begrenset antall (Enten counter eller i castleRooms)
 -> Checkbox and dropdown for roomName
 -> Hallways er size 149. Må tas hensyn til ved beregning av areal for corridors.

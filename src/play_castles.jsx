@@ -79,10 +79,10 @@ function PlayCastles() {
       room.category === activePlayer.selectedRoomCategory 
       && room.size === activePlayer.selectedRoomSize 
       && (room.bonus === activePlayer.selectedRoomBonus || room.bonus === "")))
-    console.log("activeRoom search:", castleRooms.current.find(room => 
-      room.category === activePlayer.selectedRoomCategory 
-      && room.size === activePlayer.selectedRoomSize 
-      && room.bonus === activePlayer.selectedRoomBonus)); // console.log
+    // console.log("activeRoom search:", castleRooms.current.find(room => 
+    //   room.category === activePlayer.selectedRoomCategory 
+    //   && room.size === activePlayer.selectedRoomSize 
+    //   && room.bonus === activePlayer.selectedRoomBonus)); // console.log
   }, [activePlayer]);
 
 
@@ -214,6 +214,7 @@ function PlayCastles() {
     if(activeRoom){
       // Calculating bonus if added room is "Downstairs"
       // let downstairsBonus = 0; // Har flyttet denne opp.
+      console.log("activeRoom: ", activeRoom.roomName);
       if(activeRoom.category === "Downstairs") {
         for (let i = 0; i < activePlayer.roomsArray.length; i++) { //regner ikke med rommet som legges til
           if (activePlayer.roomsArray[i].category === activeRoom.bonus) {
@@ -430,19 +431,39 @@ function PlayCastles() {
   };
 
   // Skal sjekke om man kan få en ekstra korridor (denne er ikke ferdig)
-  const handleCorridorRoomBonus = (complete) => {
-    complete ? setCorridorbonusesUsed(corridorBonusesUsed + 1) : setCorridorbonusesUsed(corridorBonusesUsed - 1); // Styrer melding om man kan ta en corridorBonus eller ikke
+  const handleCorridorRoomBonus = (inputCorridorBonus) => {
+    if (["Hallway", "Stairs"].contains(inputCorridorBonus)){
     setPlayers(prevPlayers => prevPlayers.map((player, index) => 
       index === clickedPlayerIndex ? {
         ...player,
-        roomAdded: !complete, // Må ikke føkke opp før rom er lagt til --> Disable room buttons frem til rom er lagt til.
+        roomAdded: true,
         roomsArray: player.roomsArray.map((room, rindex) => 
           rindex === clickedRoomIndex ? {
             ...room,
             completionBonus: complete,
         } : room),
     } : player));
-  };
+    setCorridorbonusesUsed(true);
+    console.log("corridorBonusUsed set to 'true' ")
+    setActiveRoom(castleRooms.current.find(room => room.name === inputCorridorBonus));
+    console.log("activeRoom set to ", castleRooms.current.find(room => room.name === inputCorridorBonus));
+    addRoom(); // Legger til valg korridor-rom bonus
+    console.log("addRoom called from handleCorridorBonus")
+    } // if Hallway/stairs
+    else if (inputCorridorBonus === "Cancel"){
+      //Setter oppenExits = 1 og lukker Modalen (tror jeg)
+      setPlayers(prevPlayers => prevPlayers.map((player, index) => 
+      index === clickedPlayerIndex ? {
+        ...player,
+        roomsArray: player.roomsArray.map((room, rindex) => 
+          rindex === clickedRoomIndex ? {
+            ...room,
+            openExits: 1,
+        } : room),
+      } : player));
+      setIsModalOpen(false);
+    }
+  }; // handleCorridorRoomBOnus
 
   // Handles the bonuses for completed Downstairs rooms
   // Living room bonus gjelder bare for det respektive Downstairs rommet(?)
@@ -476,6 +497,8 @@ function PlayCastles() {
   };
 
   const [selectedDownstairsBonus, setSelectedDownstairsBonus] = useState("N/A");
+
+  const [selectedCorridorBonus, setSelectedCorridorBonus] = useState("Stairs");
   
   // Brukes til å velge mellom downstairs bonus display messages
   const [bonusActive, setBonusActive] = useState(false); 
@@ -516,7 +539,7 @@ function PlayCastles() {
     }
   };
 
-  const [corridorBonusesUsed, setCorridorbonusesUsed] = useState(0); 
+  const [corridorBonusesUsed, setCorridorbonusesUsed] = useState(false); 
 
   // Styrer advarsel for downstairs bonus valg. Skal vise advarsel etter at 'Confirm' er trykket, og enable 'Lock' Knappen
   const [confirmationMessage, setConfirmationMessage] = useState(false);
@@ -707,23 +730,59 @@ function PlayCastles() {
           <div>
             Corridor room bonus: 
           </div>
-          {(!corridorBonusesUsed || (players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus && corridorBonusesUsed === 1)) && <div>
-            Receive an extra corridor or staircase!<br />
+          {(!corridorBonusesUsed) && 
+          <div>
+            {!players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus && <div>
+              Receive an extra corridor or staircase!<br />
+              WARNING!<br />
+              When bonus is Locked, <br />
+              it cannot be changed! <br /><br />
+            </div>}
+            <div className="radio-buttons">
+              <span className='radio-alignment'><span><input type="radio" id="Stairs" value="Stairs" name="chosen_bonus" onChange={(e) => setSelectedCorridorBonus(e.target.value)} checked={selectedCorridorBonus === "Stairs"} /><label htmlFor="Stairs">Stairs </label></span></span>
+              <span className='radio-alignment'><span><input type="radio" id="Hallway" value="Hallway" name="chosen_bonus" onChange={(e) => setSelectedCorridorBonus(e.target.value)} checked={selectedCorridorBonus === "Hallway"} /><label htmlFor="Hallway">Hallway </label></span></span>
+            </div>
+            <span>
+              <button disabled={corridorBonusesUsed} onClick={() => {
+                  handleCorridorRoomBonus(selectedCorridorBonus); // setter room.completionBonus: true, (!!!) room.chosenDownstairsBonus: selectedDownstairsBonus
+                  //setConfirmationMessage(false); // Hva gjør denne? -> Importert fra Downstairs bonus (Resettes for neste downstairs-room)
+                  setSelectedCorridorBonus("N/A"); // Resettes for neste downstairs-room !Må ikke resettes før chosenDownstairsBonus er satt
+                  // Må sette chosenDownstairsBonus før selectedDownstairsBonus resettes
+                  // Må adde valgt corridor room
+                  }}>
+                  Lock bonus
+                </button>
+                <button disabled={corridorBonusesUsed} onClick={() => {
+                  handleCorridorRoomBonus("Cancel"); // setter room.completionBonus: true, (!!!) room.chosenDownstairsBonus: selectedDownstairsBonus
+                  // Må adde valgt corridor room
+                  }}>
+                  Cancel
+                </button>
+              </span>
+              {players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus && 
+              <div>
+                Selected bonus: {players[clickedPlayerIndex].roomsArray[clickedRoomIndex].chosenCorridorBonus}
+              </div>}
           </div>}
-          {((corridorBonusesUsed === 1 && !players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus) || corridorBonusesUsed > 1) &&<div>
+          {(corridorBonusesUsed && !players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus) && <div>
             You have already received a corridor bonus.<br />
             Only one corridor bonus may be claimed each round.<br />
             <span style={{float:'center'}}>Close exit anyway?</span>
+            <span style={{float:'center'}}>WARNING: This action cannot be undone!</span>
+            <span>
+              <button onClick={() => {
+                /// set completionBouns: true
+              }}>Yes!</button>
+              <button onClick={() => {
+                /// Set openExits = 1, Close Modal
+              }}>No</button>
+            </span>
             </div>}
           <span>
-            <button disabled={players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus} onClick={() => 
-              handleCorridorRoomBonus(true)}>
-              Confirm
-            </button>
-            <button disabled={!players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus} onClick={() => 
+{/*         <button disabled={!players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus} onClick={() => 
               handleCorridorRoomBonus(false)}>
               Undo
-            </button>
+            </button> */}
           </span>
           <div>
             <img src="Broom.jpg" alt="Living room bonus: Room scored anew!" />

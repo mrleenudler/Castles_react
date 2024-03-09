@@ -489,6 +489,7 @@
         "bonusValue": 0,
         "bonusesAchieved": 0,
         "completionBonus": false,
+        "chosenCorridorBonus": "",
         "value": 0
     },
     {
@@ -497,11 +498,12 @@
         "size": 149,
         "bonus": "",
         "roomName": "Hallway",
-        "exits": 2,
+        "exits": 14,
         "openExits": 1,
         "bonusValue": 0,
         "bonusesAchieved": 0,
         "completionBonus": false,
+        "chosenCorridorBonus": "",
         "value": 0
     },    
     {
@@ -515,6 +517,7 @@
         "bonusValue": 1,
         "bonusesAchieved": 0,
         "completionBonus": false,
+        "chosenCorridorBonus": "",
         "value": 1
     },
     {
@@ -527,6 +530,7 @@
         "openExits": 10,
         "bonusValue": 1,
         "bonusesAchieved": 0,
+        "chosenCorridorBonus": "",
         "completionBonus": false,
         "value": 1
     },  
@@ -1020,6 +1024,7 @@
         "bonusValue": 0,
         "bonusesAchieved": 0,
         "completionBonus": false,
+        "chosenCorridorBonus": "",
         "value": 0
     },
     {
@@ -1033,6 +1038,7 @@
         "bonusValue": 0,
         "bonusesAchieved": 0,
         "completionBonus": false,
+        "chosenCorridorBonus": "",
         "value": 0
     },
     {
@@ -1046,6 +1052,7 @@
         "bonusValue": 0,
         "bonusesAchieved": 0,
         "completionBonus": false,
+        "chosenCorridorBonus": "",
         "value": 0
     },
     {
@@ -1059,6 +1066,7 @@
         "bonusValue": 0,
         "bonusesAchieved": 0,
         "completionBonus": false,
+        "chosenCorridorBonus": "",
         "value": 0
     }
 
