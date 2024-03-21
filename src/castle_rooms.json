@@ -503,7 +503,7 @@
         "bonusValue": 0,
         "bonusesAchieved": 0,
         "completionBonus": false,
-        "chosenCorridorBonus": "",
+        "chosenCorridorBonus": "blah",
         "value": 0
     },    
     {
@@ -517,7 +517,7 @@
         "bonusValue": 1,
         "bonusesAchieved": 0,
         "completionBonus": false,
-        "chosenCorridorBonus": "",
+        "chosenCorridorBonus": "bleh",
         "value": 1
     },
     {

@@ -6,34 +6,116 @@ saksbehandlind@sbankendnb.no
 emne: 10501332 <- lånenummer eller søknadsnummer elns.
 
 slatestarcodex.com/2015/12/17/shoud-ai-be-open
-_______________________________________________________________________________________________//
+__________________________________________________
+Nytt forsøk på corridorBonus
+
+=> Logikken for corridorBonus i addRoom er nå redundant; bruker både activeRoom og dedikert logikk
+	-> Må ryddes.
+
+
+
+??? Kan det være .completionBonus som har noen uheldige bivirkninger?
+	(CompletionBonus settes ikke for Outdoor-room?)
+
+??? Hva skjer om downstairs room velger corridorBonus?
+-> Prøver å sette activeRoom = selectedCorridorBonus / Resette selectedCorridorBonus (ser ut til å funke, men løser ikke(?) problemet.)
+
+
+_______________________________________________________________________________________________
 IMPLEMENTERES NÅ
 
 
--> corridorBonusesUsed, skal den være 0/1 eller false/true 
-   (den skal avgjøre om en spiller har brukt sin corridorBonus denne runden. 
-   Skal den resettes ved endTurn?)
+*downstairs har confirm+Lock	-> 'Cancel' button mangler sammen med 'Lock' ('Change choice' button vises nåt det kan velges bonus)
+downstairs: displayes WARNING riktig?
+-> downstairsBonus: corridor legges ikke til roomsArray
+-> Må implementeres en 'Cancel' button etter 'Confirm' for downstairsBonus (Mulig flere rom vil ha 'cancel' også)
+-> CorridorBonus er dobbelt implementert -> useEffect activeRoom tar over rollen til koden i addRoom
+-> Corridor bonus modalOKbutton trenger litt mer luft til pluss/minus knappene
+-> Modal trenger korrekt bilde for Stairs og Hallway (ImageSize(?) funker ikke)
+-> WARNING displayes etter at corridor-bonus er lagt til. Den skal ikke displayes for (completionBonus)
+	-> Corridor bonus kan brukes flere ganger med openExits trikset.
+	-> Kanskje selectedCorridorBonus må være en player.variable?
+-> Displayes en unwanted '0' i CorridorBonus modal
+-> room.completionBonus settes ikke til 'true'
+-> Downstairs bonus har en ekstra 'Lock' dialogoue, det har ikke Corridor bonus
+-> Corridor bonus må ikke kunne trigges uten å legge til rom først. (player.roomAdded må ikke settes i handleCorridorBonus)
+-> Ny stateVariable: corridorBonusLocked?
+
+-> chosenCorridorBonus, resettes den om bonus ikke Lockes?
+
+-> corridorBonusesUsed,    Skal den resettes ved endTurn?)
+image til modalen bugger på størrelse? (Eller bare for 'stairs'?)
 
 WARNING skal bare displaye if(!corridorBonusUsed)
+
+===> UI i relasjon til corridorBonusLocked
+	-> Disable openExits (done for .completionBonus)
+	-> .completionBonus styrer modalOKbutton
 
 DONE: !corridorBonusUsed && !completionBonus -> Lock / cancel
 TODO: !corridorBonusUsed && completionBonus -> Bonus brukt tidligere -> Display chosen bonus, OK-button only
 	Selected bonus: {room.chosenCorridorBonus}<br /> // Må være room.variable
 
-TODO: corridorBonusUsed && !completionBonus -> Yes / No
+DONE: corridorBonusUsed && !completionBonus -> Yes / No
 
 TODO? corridorBonusUsed && completionBonus -> display bonus
+	-> eventuelt if(chosenCorridorBonus) // Kan displayes uavhengig av kombinasjon
 
 => handle trigges av: 
 			<button> Lock bonus / Cancel
 			<button> Undo (?)
 
+-> ModalOKbutton are enabled when prompting for Lock
+	-> Disable this
+	-> adjustopenExits setter disableModalOKbutton(false) -> Kalles den oftere enn forventet??
+		-> disableModalOKbutton skal være 'true' i corridor Lock screen (corridorBonusUsed && )
+	-> activateRoomBonus -> disabled for category && !completionBonus (openExits == 0 kaller activateRoomBonus)
+	=> Konklusjon: completionBonus setter !disabled
+		activateRoomBonus kjører for openExits == 0 -> setter !disable (hvordan påvirker den Downstairs?)
+	=> Kanskje corridor-confirm ikke skal sette completionBonus? 
+
+
+-> room-dropdowns resettes ikke etter corridorBonus+endTurn (ny bonus legges til eksisterende(?))
+	-> Fikk doble bonuser for activity-350 (et resultat av corridor-bonus?)(feil bonus kna ikke velges.) (curious: kan ikke velge bonus med piltastene)
+-> Corridor bonus, dersom valgt(og ikke 'Locked'), overstyrer activeRoom i addRoom for NESTE PLAYER (corridorBonus: 'Locked' ser ikke ut til å påvirke neste spiller)
+-> Dersom corridorBonus er 'confirmed' kan den ikke 'Lockes' senere. -> Må løses.
+-> Cannot read property og undefined reading 'category' (solved?)
+	-> problem i endTurn
+-> Mulig fix: sjekke for corridorer med openExits==0&&corridorbonusUsed&&!corridorbonusLocked
+Problem: modalOKbutton er ikke disabled etter 'confirm' -> 
+??? Er denne i det hele tatt verd å løse ???
+=>
+=>
+=>	Vurder å restrukturere handleCorridorBonus til å ikke sette .completionBonus før 'Lock'
+=>	Kanskje egen 'Lock' seksjon?
+=> 	Trenger den (enda en) ekstra stateVariable?
+=>
+=>
+corridorBonusUsed && players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus && players[clickedPlayerIndex].roomsArray[clickedRoomIndex].category === "Corridor"
+-> kan legges til activateRoomBonus() !!! Må ikke låse modalOK til senere
+
+corridorBonusLocked property er kanskje løsningen.
+Sjekk også ut downstairs 
+	completionBonus
+	chosenDownstairsBonus
+
+
+
+
+
+
+
+
+
 -> handleCorridorRoomBonus(complete) 	-> setplayers(roomAdded: !complete, roomsArray.completionBonus: complete)
 					-> setCorridorBonusUsed(true)
-					==> Må adde bonusrom (DONE)
 
 -> radio-buttons koblet til: name="chosen_bonus" (endre name?)
 					-> onChange: setSelectedCorridorBonus
+
+-> Lock bonus -> Display bonus -> focus OK-button.
+
+-> Adjacent room bonus == 0 --> remove bonus buttons
 
 L.712
 {(!corridorBonusesUsed || (players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus && corridorBonusesUsed === 1)) && <div>
@@ -52,9 +134,16 @@ L.735
 -> 'Confirm' button fjernes.
 
 -> Corridor bonus radio button må disables dersom det er tomt for aktuelt rom (deafult rom "N/A")
+
+
+
+
+
+
 -> DownstairsBonus: Displayes 'Change choice' knappen på noe tidspunkt? 
 -> DownstairsBonus: Disables openExits '+' knappen?
 
+-> corridor-bonus bør ha en funksjon tilsvarende handleDownstairsCompletionBonusText
 -> Alle rom som har completionBonus, bør de disable openExits? -> Nei
 	-> Activity room bonus kan enkelt reverseres. 
 		-> openExits for Activity room kan ikke manipuleres etter Confirm
@@ -72,18 +161,15 @@ FIX		-> Eller Undo-button låses ved endTurn
 	-> Corridor rooms: bonus er locked, men exits kan endres?
 
 -> clickedPlayerIndex = useState(0)?
--> clickedPlayerIndex --> activePlayerIndex
+-> clickedPlayerIndex --> activePlayerIndex (rename)
 
 -> Slett ett room fra Modal
 
 -> 'Undo' bonus bør sette openExits = 1
 
 -> focus på start game er annoying, og må fjernes
--> Modal viser ikke bilde for Stairs (hva med Hallways?)(rotate 90)
--> "Cancel" button for Downstairs og Corridor bonuses setter openExits = 1 og lukker modal.
+-> Modal viser ikke bilde for Stairs (hva med Hallways?)(rotate 90?)
 
-l. 711 
-	Confirm button -> setActiveRoom -> addRoom (ta inspirasjon fra downstairsBonus)
 
 -> Stairs og corridors må finnes i riktig antall (aktuelt med en counter?)
 	-> Pass på at Stairs og Hallways er unike, ellers virker ikke clickedRoomIndex.
@@ -111,9 +197,23 @@ l. 711
 react-dom.development.js:86 Warning: Encountered two children with the same key, `Corridor`. 
 	-> Kommer av lik bonus.
 	-> Kan bli unsupported i en senere versjon.
+
+-> Bør Modal ikke lukkes i CorridorBonus? Bedre å highlighte 'OK'
+-> chosenCorridorBonus har en placegolder value i castles_rooms
+-> clickedPlayerIndex bør være en activePlayerIndex (Allerede implementert(?), trenger en rename.)
+-> setActivePlayer har ikke konsekvent functional updates.
+-> activePlayer kan erstattes av players[clickedPlayerIndex]
+-> Undersøk at det er greit å bruke state variables til så mye, og at de ikke bør være player-instance variables, eller om de kanskje er/skulle være begge deler.
+-> Erstatt activePlayer med clikcedPlayerIndex
+-> UpdateTotalScore, skal summere roomsArray. (se f.eks downstairs-bonus i addRoom)
 ________________________________________________________________________________________________
 IMPLEMENTERES SENERE
 
+-> Stylingen i corridorBonus "already received" funker ikke.
+-> Setup: Player 3 / 4 kan disables frem til player 1 og 2 er utfyllt, for å lette tab-navigation til 'Start'
+-> Flytte og dele opp logikken for corridorBonusModal
+-> players[clickedPlayerIndex].roomsArray[clickedRoomIndex] brukes mye og kan kanskje erstattes med en shortcut.
+-> Revisit setActivePlayer i handleCategoryChange
 -> Dobbeltsjekk at starting-rooms fjernes fra castleRooms
 -> max adjacent room bonuses == number of closed exits
 -> max adjacent room bonuses == number of bonus-rewarding rooms in play
@@ -159,6 +259,8 @@ Skaler bildene med logikk -> Sjekk skalering og juster etter behov
 -> Vil at room-bonus ikke flytter resten av modalen.
 -> Disable buttons for roomsArray før rom er lagt til (For å ikke føkke opp med Food room bonusen, reimplementeres senere av test-hensyn)
 -> <button 
+-> I game setup, vil jeg force update av player name, når name velges med arrow-down, slik at den ikke deselected med tab.
+	-> Lag noe cookie handling eller noe som husker tildligere player names. 
                           disabled={player.name !== activePlayer.name || !player.roomAdded} // Legges til for å kreve nytt rom før bonuser.
 
 Vil at score lagrer alle rundene til senere
@@ -182,6 +284,7 @@ Flytt all CSS-koden over i egen fil.
 Spør etter ytterlige forbedringer, spesielt elementer som avverger potesielt dårlig formatering (eks overflow: auto) Også: fjern unødvendig formatering (best å ikke introdusere den?)
 ________________________________________________________________________________________
 KJEKT Å HA
+-> Alle player.name testene kan erstattes med playerIndex
 -> Sett scroll-position tilsvarende activeplayer for å unngå å måtte scrolle ned for player 4.
 -> Vurder layout for roomsArray/scoresArray. Kanskje scores skal displayes over rooms? Implikasjoner for potensiell mobil-app.
 -> Rydd opp i Toast-logikken
