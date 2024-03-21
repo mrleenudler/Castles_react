@@ -282,17 +282,18 @@ function PlayCastles() {
     } else if (!activeRoom && !selectedCorridorBonus) {
       setToastMessage({message: "Please select an actual room", color: '#f0ad4e'});
       displayToast(); // Viser Toast-melding om at gyldig rom ikke er valgt. (Bør meldingen skrives i denne funksjonen?)
-    // if(activeRoom && !selectedCorridorBonus)
-    } else if (selectedCorridorBonus){ // Tror ikke det bør testes for activeRoom her, fordi dropdowns kan være endret før bonus velges?
-      // Risiko for activeRoom + selectedCorridorBonus? (Nei, første if har !selectedCorridorBonus)
-      setPlayers(prevPlayers => prevPlayers.map(player => (// Adding chosen corridor-bonus; "Stairs" or "Hallway"
-        player.name === players[clickedPlayerIndex].name ? {
-        ...player,
-        scoresArray: [...players[clickedPlayerIndex].scoresArray, 0],
-        roomsArray: [...players[clickedPlayerIndex].roomsArray, castleRooms.current.find(room => room.roomName === selectedCorridorBonus)]
-        } : player)));
-      setSelectedCorridorBonus(""); // Unngår konflikt ved senere addRoom
-      console.log("Resetting selectedCorridorBonus");
+      // if(activeRoom && !selectedCorridorBonus)
+   //REMOVING REDUNDANT CODE for corridor-bonus
+    // } else if (selectedCorridorBonus){ // Tror ikke det bør testes for activeRoom her, fordi dropdowns kan være endret før bonus velges?
+    //   // Risiko for activeRoom + selectedCorridorBonus? (Nei, første if har !selectedCorridorBonus)
+    //   setPlayers(prevPlayers => prevPlayers.map(player => (// Adding chosen corridor-bonus; "Stairs" or "Hallway"
+    //     player.name === players[clickedPlayerIndex].name ? {
+    //     ...player,
+    //     scoresArray: [...players[clickedPlayerIndex].scoresArray, 0],
+    //     roomsArray: [...players[clickedPlayerIndex].roomsArray, castleRooms.current.find(room => room.roomName === selectedCorridorBonus)]
+    //     } : player)));
+    //   setSelectedCorridorBonus(""); // Unngår konflikt ved senere addRoom
+    //   console.log("Resetting selectedCorridorBonus");
     } else {
       console.log("ERROR IN addRoom!");
     }; 
