@@ -9,74 +9,12 @@ slatestarcodex.com/2015/12/17/shoud-ai-be-open
 __________________________________________________
 
 
-
-??? Kan det være .completionBonus som har noen uheldige bivirkninger?
-	(CompletionBonus settes ikke for Outdoor-room?)
-
-??? Hva skjer om downstairs room velger corridorBonus?
--> implementer downstairsCorridorBonusActive (kjører activateRoomBonus på ny, men i corridor-løpet)
-	-> hvordan kan jeg bruke room.chosenDownstairsBonus?
--> Lock-bonus/Confirm må ha Cancel button
--> Hvilke downstairs-variabler skal ryddes i etter corridor-bonus er satt?
-
-'Lock': -> [Må sende downstairsBonus til corridorBonus], [og deretter tilbake til display-downstairs-bonus]
-handleDownstairsBonus() => setting [setDownstairsCorridorBonusChosen], completionBonus, chosenDownstairsBonus, scoresArray
-	endTurn: Hva resettes der? 
-		corridorBonusConfirmationMessage?
-		corridorBonusUsed
-		[downstairsCorridorBonusChosen]
-setdownstairsBonusConfirmationMessage(false);
-setSelectedDownstairsBonus("N/A"); => 
-	handleDownstairsBonus --> corridorBonus
--> Når rommet klikkes på ny etter bekreftelsen, må bonus displayes uten interaksjonsmuligheter
-	-> Hva skiller corridor-path fra displayDownstairsBonus?
-		-> downstairsCorridorBonusChosen (Må ikke tillate 'Cancel'/'Abort')
-		-> [downstairsCorridorBonusLocked] ?
-* !downstairsCorridorBonusChosen lagt til som kriterium for downstairsBonus i activateRoomBonus
-* downstairsCorridorBonusChosen lagt til i corridorBonus
-* -> Bruk downstairsCorridorBonusChosen til å sette/tvinge corridorBonus
-* -> Implementer retur til displayBonus (Vurder om ny state variable trengs, eller om .chosenDownstairsBonus (corridor/stairway/hallway) kan brukes.) 
-? Er 'cancel' disabled i velg-corridor-bonus?
 ? setDisableModalOKbutton - må den settes til 'false' i 'confirm'? (for downstairs-corridor-bonus)
-
-
-
-* Fjernet !selectedCorridorBonus fra addRoom.
-	-> 'Confirm' -> addRoom KREVER avtiveRoom=selectedCorridorBonus TRIGGES AV [activePlayer]
-
-
-**setSelectedCorridorBonus i handleCorridorBonus
-	-> blokkerer downstairsCorridorBonus
-DONE	-> kan den flyttes til addRoom?
-	-> kan den deaktiveres for downstairsCorridorBonus?
-*** SETTER IKKE ACTIVEROOM RIKTIG.
-
-===> Sync issue mellom useEffect og addRoom? 
-	-> Lage en annen(lengre) vei til addRoom?
-	-> Lage en parallell rute? 
--> Prøver å bruke selectedCorridorBonus i addRoom 
-(trenger activeRoom egentlig å være en stateVariable?)
-(Kan jeg sette activeRoom = selecteCorridorBonus øverst i addRoom?)
-	-> Må passe på at activeRoom og selectedCorridorBonus ikke er aktive samtidig
-	-> Har downstairsCorridorBonus en rolle her?
-	-> Sjekk hvor selectedCorridorBonus resettes.
-	-> addRoom i activeRoom-useEffect skal sannsynligvis flyttes til handleCorridorBonus.
-		-> Har flyttet, men får jeg sync-issues med oppdateringen av players og activeplayer nå?
--> Corridor legges korrekt til, men scoresArray oppdateres ikke korrekt.
-	-> Når kjeller-bonus beregnes, oppdateres ikke scoresarray.
-	-> Kan det være fordi downstairs-bonus trigges? -> Ja
-	-> overskrives scoresArray når rommet gir bonus til et Downstaors room?
-		->stateVariable calculateDownstairsBonus + useEffect (?)
-		->pass på at den ikke kjøres for mange ganger
-		-> Egne state-variables for roomAdded + corridorBonusUsed + downstairsCorridorBonusUsed ??
-
--> Redesigner addRoom til å bare gjennomføre én setPlayers
-
--> Hvis downstairs room har downstairs bonus: Legger den til altfor mange poeng? L.230
-		
+	-> Ja, det må den.		
 _______________________________________________________________________________________________
 IMPLEMENTERES NÅ
 
+-> Vil ikke at 'size' og 'bonus' displayes før 'category er valgt
 -> UpdateTotalScore: Kanskje den bare skal kalles når Modal lukkes?
 	-> Nå: Kalles ved addRoom og calculateDownstairsBonus.
 	-> Kontroller at addScore ikke legger til bonuser to ganger.

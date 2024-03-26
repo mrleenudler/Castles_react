@@ -619,7 +619,8 @@ function PlayCastles() {
     // console.log("completionBonus test: ", players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus); //funker (completionBonus er 'true' når metoden kalles)
     ['Activity', 'Living', 'Downstairs', 'Food', 'Corridor'].includes(players[clickedPlayerIndex].roomsArray[clickedRoomIndex].category) 
     && !players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus // Disabler OK-knappen når en bonus trenger bekreftelse.
-    || corridorBonusConfirmationMessage ? // Corridor bonus logikken krever en ekstra test.
+    || corridorBonusConfirmationMessage // Corridor bonus logikken krever en ekstra test.
+    || downstairsCorridorBonusChosen ?  // Det gjør downstairsCorridorBonus også
     setDisableModalOKbutton(true) : setDisableModalOKbutton(false); // Re-enabler knappen når bonus er registrert i rommet (spesielt aktuelt for downstairs og Corridor?)
     // 'confirm' setter .completionBonus -> Enabler knappen.
     
@@ -770,6 +771,8 @@ function PlayCastles() {
                 setdownstairsBonusConfirmationMessage(false); // Resettes for neste downstairs-room
                 setSelectedDownstairsBonus("N/A"); // Resettes for neste downstairs-room !Må ikke resettes før chosenDownstairsBonus er satt
                 // Må sette chosenDownstairsBonus(instance) før selectedDownstairsBonus(state) resettes
+                // -> FUNKER IKKE setDisableModalOKbutton(true); // passer på at Modal ikke kan lukkes når/hvis corridor-bonus blir valgt
+                // trenger kanskje en if- for å ikke messe opp for andre bonuser 
                 }}>
                 Lock bonus
               </button>
@@ -803,8 +806,6 @@ function PlayCastles() {
         );
       }; // downstairsBonus
 
-
-
     // Corridor bonus 
     } else if (players[clickedPlayerIndex].roomsArray[clickedRoomIndex].category === "Corridor"
     || downstairsCorridorBonusChosen) {
@@ -813,12 +814,11 @@ function PlayCastles() {
       return(
       <div className="bonus-add-on">
         <div>
-          Corridor room bonus: 
+          Corridor room bonus: <br />
         </div>
-        {!corridorBonusConfirmationMessage 
+        {(downstairsCorridorBonusChosen || !corridorBonusConfirmationMessage 
         && !players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus 
-        && !corridorBonusUsed 
-        || downstairsCorridorBonusChosen
+        && !corridorBonusUsed)
         && <div>
           <div>
             Receive an extra Hallway or Staircase!<br /><br />
@@ -831,8 +831,6 @@ function PlayCastles() {
           <span>
             <button disabled={!selectedCorridorBonus} onClick={() => { // 'Confirm' disabled til bonus er valgt
               if (downstairsCorridorBonusChosen){
-                //console.log("\t downstairsCorridorBonusChosen from 'Confirm' button");
-                // addRoom();
                 setIsModalOpen(false);
                 //setDownstairsCorridorBonusChosen(false);
               } // gjelder når corridorBonus trigges av Downstairs room
@@ -843,8 +841,6 @@ function PlayCastles() {
               handleCorridorRoomBonus(selectedCorridorBonus) 
               // --> completionBonus må ikke settes her, den er viktig for å unngå resetting av corridorBonus ved neste turn.
                 // set room.chosenCorridorBonus (in handle)
-
-                // Identiske rom lager (sannsynligvis) problemer for å identifisere korrekt corridor-room å manipulere 
               // openExits trikset må sperres
               }}>
               Confirm
