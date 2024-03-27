@@ -7,13 +7,11 @@ emne: 10501332 <- lånenummer eller søknadsnummer elns.
 
 slatestarcodex.com/2015/12/17/shoud-ai-be-open
 __________________________________________________
-
-
-? setDisableModalOKbutton - må den settes til 'false' i 'confirm'? (for downstairs-corridor-bonus)
-	-> Ja, det må den.		
-_______________________________________________________________________________________________
 IMPLEMENTERES NÅ
 
+-> Bruk parenteser for å avklare forholdet mellom && og ||
+-> BUG: Av og til legges det til for mange bonser i dropdown. Muligens når category endres.
+	-> Category bør resette bonuser
 -> Vil ikke at 'size' og 'bonus' displayes før 'category er valgt
 -> UpdateTotalScore: Kanskje den bare skal kalles når Modal lukkes?
 	-> Nå: Kalles ved addRoom og calculateDownstairsBonus.
@@ -211,6 +209,7 @@ react-dom.development.js:86 Warning: Encountered two children with the same key,
 ________________________________________________________________________________________________
 IMPLEMENTERES SENERE
 
+-> useEffect active room -> skriv om for å rette opp i demenencies, og få addRoom ut av useEffect.
 -> I addRoom, activeRoom er mer eller mindre provisorisk erstattet med tempRoom. Sjekk om activeRoom trenger å være en stateVariable, og sett logikken for bruk av acteiveRoom/tempRoom/selectedCorridorBonus øverst i metoden.
 -> Downstairs rooms med bare én exit må trigge bonus/Modal automatisk
 -> Stylingen i corridorBonus "already received" funker ikke.

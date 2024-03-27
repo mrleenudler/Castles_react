@@ -61,6 +61,7 @@ function PlayCastles() {
 
 
   // Ser etter activeRoom når noe endres
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect( () => {
     if (selectedCorridorBonus) { // blir selectedCorridorBonus resatt for downstairsBonus?
       // Funker ikke for downstairsCorridorBonus pga for kort action chain; blir ikke opdatert i tide
@@ -82,8 +83,10 @@ function PlayCastles() {
       console.log("Going to addRoom from useEffect");
       addRoom();
     }
-  }, [activePlayer]);
-
+  }, [activePlayer]); 
+  // denne kan endres til å lytte til  selectedCorridorBonus, downstairsCorridorBonusChosen 
+  // så kan addRoom kalles fra handleCorridorBonus() / handleDownstairsCorridorBonus
+  // og addRoom kan forenkles (kanskje?)
 
   const updateTotalScore = (addScore) => { // er addScore nødvendig her?
     const sum = players[clickedPlayerIndex].scoresArray.reduce((acc, score) => acc + score, 0);
@@ -314,26 +317,6 @@ function PlayCastles() {
     // console.log("activeplayer and clickedplayerIndex set. Index: ", nextIndex);
   }; //endTrun
 
-
-  // Bør endres til NEW GAME - pass på at spillet blir lagret
-  const handleSubmit = (event) => { // tror hele denne metoden skal bort/reduseres til et skall.
-    event.preventDefault();
-    const updatedPlayers = players.map(player => {
-      let newRoomsArray = [...player.roomsArray]; // bruke prevRoomsArray? Unngå 'let' 
-      if (player.selectedRoom !== null) { // skal det være != eller !==
-        newRoomsArray.push(player.selectedRoom) 
-      }; // endre til immutable? - push er ikke bra, erstatt
-    //setPlayers(players.map(player => ({ ...player, 
-      return{
-        totalScore: player.totalScore, //turnScore er fjernet herfra - Antar hele funksjonen skal bort. 
-        roomsArray: newRoomsArray,
-        selectedRoomCategory: "Category",
-        selectedRoomSize: 0,
-        selectedRoomBonus: "Bonus"
-      };
-    });
-    setPlayers(updatedPlayers)
-  };
 
   const [showToast, setShowToast] = useState(false);
 
@@ -617,8 +600,8 @@ function PlayCastles() {
   const activateRoomBonus = () => { 
     // console.log("activateRoomBonus running");
     // console.log("completionBonus test: ", players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus); //funker (completionBonus er 'true' når metoden kalles)
-    ['Activity', 'Living', 'Downstairs', 'Food', 'Corridor'].includes(players[clickedPlayerIndex].roomsArray[clickedRoomIndex].category) 
-    && !players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus // Disabler OK-knappen når en bonus trenger bekreftelse.
+    (['Activity', 'Living', 'Downstairs', 'Food', 'Corridor'].includes(players[clickedPlayerIndex].roomsArray[clickedRoomIndex].category) 
+    && !players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus) // Disabler OK-knappen når en bonus trenger bekreftelse.
     || corridorBonusConfirmationMessage // Corridor bonus logikken krever en ekstra test.
     || downstairsCorridorBonusChosen ?  // Det gjør downstairsCorridorBonus også
     setDisableModalOKbutton(true) : setDisableModalOKbutton(false); // Re-enabler knappen når bonus er registrert i rommet (spesielt aktuelt for downstairs og Corridor?)
@@ -816,9 +799,9 @@ function PlayCastles() {
         <div>
           Corridor room bonus: <br />
         </div>
-        {(downstairsCorridorBonusChosen || !corridorBonusConfirmationMessage 
+        {(downstairsCorridorBonusChosen || (!corridorBonusConfirmationMessage 
         && !players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus 
-        && !corridorBonusUsed)
+        && !corridorBonusUsed))
         && <div>
           <div>
             Receive an extra Hallway or Staircase!<br /><br />
@@ -1064,6 +1047,7 @@ function PlayCastles() {
 
   const focusPlayer1 = useRef(null);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect( () => {
     focusPlayer1.current.focus();
   }, []);
@@ -1191,7 +1175,7 @@ function PlayCastles() {
         <h1>Castles Score Keeper</h1>
         <div>
           {clickedRoom && (
-            <Modal isOpen={isModalOpen} onClose={ () => (setIsModalOpen(false), updateTotalScore(0))}>
+            <Modal isOpen={isModalOpen} onClose={ () => {setIsModalOpen(false); updateTotalScore(0)}}>
               {/* Legg til exit og bonus-handling i players[index].roomsArray[index].openExits / ...bonusesAchieved => setPlayers i egen handler funksjon*/}
                   <span>
                     <img src={findImageFile(players[clickedPlayerIndex].roomsArray[clickedRoomIndex].category, players[clickedPlayerIndex].roomsArray[clickedRoomIndex].size, players[clickedPlayerIndex].roomsArray[clickedRoomIndex].bonus, players[clickedPlayerIndex].roomsArray[clickedRoomIndex].roomName)} style={{width: imageSize[players[clickedPlayerIndex].roomsArray[clickedRoomIndex].size] * 2}} alt="selectedRoom" />
