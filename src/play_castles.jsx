@@ -8,12 +8,12 @@ import castlesRoomSupply from './castle_rooms.json';
 
 
 class Player {
-  constructor(name, color, totalScore, startingRoom) { //startingRoom
+  constructor(name, color, totalScore, startingRoom) { 
       this.name = name;
       this.color = color;
       this.roomsArray = [startingRoom];  // Array to store rooms for each round
       this.scoresArray = [totalScore]; // Starting room har ikke noen poeng
-      this.selectedRoomCategory = "Category"; // Skal disse henvise til et Room?
+      this.selectedRoomCategory = "Category"; 
       this.availableRoomSizes = ["Size"];
       this.selectedRoomSize = 0; 
       this.availableBonuses = ["Bonus"];
@@ -513,10 +513,11 @@ function PlayCastles() {
   // Living room bonus gjelder bare for det respektive Downstairs rommet(?)
   //    -> Hva med bonuser som legges til senere? Dobles de også? *Antar de ikke dobles. 
   const handleDownstairsBonus = (chosenBonusFromButton) => { 
-  setDisableModalOKbutton(false); // enabler knappen når downstairsBonus er satt.
-  if (chosenBonusFromButton === "Corridor") {
-    setDownstairsCorridorBonusChosen(true); // skifter path i activateRoomBonus
-  }
+    setDisableModalOKbutton(false); // enabler knappen når downstairsBonus er satt.
+    const foodBonus = chosenBonusFromButton === "Food" ? false : true;
+    if (chosenBonusFromButton === "Corridor") {
+      setDownstairsCorridorBonusChosen(true); // skifter path i activateRoomBonus
+    } // 'else' her?
     // Settes ved 'Lock bonus'
     setPlayers(prevPlayers => {
       const downstairsActivityBonus = chosenBonusFromButton === "Activity" ? 5 : 0;
@@ -529,6 +530,7 @@ function PlayCastles() {
       return prevPlayers.map((player, index) => 
         index === clickedPlayerIndex ? {
           ...player,
+          roomAdded: foodBonus,
           roomsArray: player.roomsArray.map((room, rindex) => 
             rindex === clickedRoomIndex ? {
               ...room,
@@ -537,11 +539,10 @@ function PlayCastles() {
             } : room),
           scoresArray: player.scoresArray.map((score, sindex) => 
             sindex === clickedRoomIndex ? score + downstairsActivityBonus + downstairsLivingBonus : score),
-        } : player)
+        } : player);
         // activePlayer setter ikke her. Tror ikke det er nødvendig.
         //console.log("addedDownstairsBonusPoints: ", addedDownstairsBonusPoints);
-      }); // kan jeg aktivere Modal-OK-button her?
-      
+    }); // kan jeg aktivere Modal-OK-button her?     
   };
 
   const [selectedDownstairsBonus, setSelectedDownstairsBonus] = useState("N/A");
@@ -1118,10 +1119,11 @@ function PlayCastles() {
     castleRooms.current.splice(castleRooms.current.indexOf(castleRooms.current.find(room => room.size === 125)), 4);
   }); //setupGame
 
-  // Skal sette focus på "Start game" button når den blir aktiv. (Kanskje jeg ikke skal bruke den som en useEffect?)
-  useEffect( () => {
-    startGameRef.current.focus();
-  },[disableStartGameButton]); // listen to disableStartGameButton?
+  // // Skal sette focus på "Start game" button når den blir aktiv. (Dårlig UX, må bort)
+  // useEffect( () => {
+  //   //startGameRef.current.focus();
+  //   console.log("temporary disabled startGame button (skal slettes pga UX)")
+  // },[disableStartGameButton]); // listen to disableStartGameButton?
 
   const startGameRef = useRef(null);
 
