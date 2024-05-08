@@ -49,9 +49,9 @@ function PlayCastles() {
   };
 
   const [players, setPlayers] = useState([
-    new Player("Alice", "Blue", 0, castleRooms.current.find(room => room.roomName === "Blue")),
-    //new Player("Bob", "Red", 1, castleRooms.current.find(room => room.roomName === "Red")),
-    //new Player("Charlie", "Orange", 2, castleRooms.current.find(room => room.roomName === "Orange")),
+    new Player("Alpha", "Blue", 0, castleRooms.current.find(room => room.roomName === "Blue")),
+    new Player("Beta", "Red", 1, castleRooms.current.find(room => room.roomName === "Red")),
+    //new Player("Gamma", "Orange", 2, castleRooms.current.find(room => room.roomName === "Orange")),
   ]); // Erstattes av Setup - debug
   // const [players, setPlayers] = useState(null)
 
@@ -1063,7 +1063,7 @@ function PlayCastles() {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect( () => {
-    focusPlayer1.current.focus();
+    focusPlayer1.current.focus(); // enable for gameStage="setup"
   }, []);
 
   const [randomStartingPlayer, setRandomStartingPlayer] = useState(true);
