@@ -1,41 +1,47 @@
 .toast {
-    position: fixed;
-    top: 20%;
-    left: 30%;
-    transform: translateX(-50%) translateY(-50%) scale(1.3) ;
-    animation: slideIn 0.8s ease-out forwards;
-    /*background-color: #f0ad4e;*/
-    color: white;
-    padding: 10px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);/* er dette fornuftig farge-koding?*/
-    z-index: 1000;
-  }
+  position: fixed;
+  top: 20%;
+  left: 30%;
+  transform: translateX(-50%) translateY(-50%) scale(1.3) ;
+  animation: slideIn 0.8s ease-out forwards;
+  /*background-color: #f0ad4e;*/
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);/* er dette fornuftig farge-koding?*/
+  z-index: 1000;
+}
 .toast.hide { /* Ikke implementert enda. (tror jeg ) */
-    animation: slideOut 0.5s ease-in forwards;
-  }
+  animation: slideOut 0.5s ease-in forwards;
+}
   
-    @keyframes slideIn {
-    from {
-        transform: translateY(0); /* Start off-screen, below the view */
-        opacity: 0;
-    }
-    to {
-        transform: translateY(20%); /* End at its final position */
+  @keyframes slideIn {
+  from {
+      transform: translateY(0); /* Start off-screen, below the view */
+      opacity: 0;
+  }
+  to {
+      transform: translateY(20%); /* End at its final position */
+      opacity: 1;
+  }
+  }   
+  @keyframes slideOut {
+      from {
+        transform: translateY(0);
         opacity: 1;
-    }
-    }   
-    @keyframes slideOut {
-        from {
-          transform: translateY(0);
-          opacity: 1;
-        }
-        to {
-          transform: translateY(100%);
-          opacity: 0;
-        }
       }
+      to {
+        transform: translateY(100%);
+        opacity: 0;
+      }
+    }
       
+/* Styling for toggled deleteRoomButton */
+.delete-room-button-active {
+  background-color: yellow; /* Warning color */
+  color: black; /* Text color for visibility */
+}
+
 /* Style for each score item */
 .score-item {
   display: flex;

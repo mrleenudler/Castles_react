@@ -29,7 +29,6 @@ function PlayCastles() {
   const castleRooms = useRef(castlesRoomSupply);
   // Direct Mutations: Be mindful when directly mutating objects or arrays referenced by refs. While useRef doesn’t cause re-renders, direct mutations bypass React's state management and can lead to harder-to-track bugs.
 
-
   const categories = ["Category", ...new Set(castleRooms.current.map(room => room.category).sort())];
   // legger foreløpig ikke opp til at denne skal kunne endres (det blir tomt for rom i en kategori etter hvert, men det er ikke et alvorlig problem, bare en lite UX-greie)
 
@@ -51,13 +50,23 @@ function PlayCastles() {
 
   const [players, setPlayers] = useState([
     new Player("Alice", "Blue", 0, castleRooms.current.find(room => room.roomName === "Blue")),
-    new Player("Bob", "Red", 1, castleRooms.current.find(room => room.roomName === "Red")),
-    new Player("Charlie", "Orange", 2, castleRooms.current.find(room => room.roomName === "Orange")),
-  ]); // Erstattes av Setup
+    //new Player("Bob", "Red", 1, castleRooms.current.find(room => room.roomName === "Red")),
+    //new Player("Charlie", "Orange", 2, castleRooms.current.find(room => room.roomName === "Orange")),
+  ]); // Erstattes av Setup - debug
+  // const [players, setPlayers] = useState(null)
+
+  const [deleteRoomButtonActive, setDeleteRoomButtonActive] = useState(false);
+
+  const clickDeleteRoomButton = () => {
+    setDeleteRoomButtonActive(!deleteRoomButtonActive);
+    // setClickedRoom(null);
+  }
 
   const [activePlayer, setActivePlayer] = useState(players[0]); // starte med 'null'?
+  // activePlayer skal på sikt erstattes med clickedPlayerIdenx 
 
   const [activeRoom, setActiveRoom] = useState(null);
+  // activeRoom skal erstattes med clickedRoomIndex
 
 
   // Ser etter activeRoom når noe endres
@@ -88,10 +97,13 @@ function PlayCastles() {
   // så kan addRoom kalles fra handleCorridorBonus() / handleDownstairsCorridorBonus
   // og addRoom kan forenkles (kanskje?)
 
-  const updateTotalScore = (addScore) => { // er addScore nødvendig her?
-    const sum = players[clickedPlayerIndex].scoresArray.reduce((acc, score) => acc + score, 0);
+  const updateTotalScore = (playerIndex, addScore) => { // er addScore nødvendig her?
+    //debug
+    console.log("update Total Score - scoresArray: ", players[playerIndex].scoresArray) //debug
+    const sum = players[playerIndex].scoresArray.reduce((acc, score) => acc + score, 0);
+    console.log("Updating total score. Scoresarray sum:", sum, "addScore: ", addScore); //debug
     setPlayers(prevPlayers => prevPlayers.map(player => 
-      player.name === players[clickedPlayerIndex].name ? 
+      player.name === players[playerIndex].name ? 
       {
         ...player,
         totalScore: sum + addScore
@@ -119,6 +131,7 @@ function PlayCastles() {
     let sizes = [];
     const roomsOfCurrentCategory = castleRooms.current.filter(room => room.category === newCategory);
     const bonuses = castleRooms.current.filter(room => room.category === newCategory && room.size === activePlayer.selectedRoomSize && room.bonus).map(room => room.bonus);
+    console.log("Bonuses i handleCategoryChange", bonuses);
     for (let i = 0; i < roomsOfCurrentCategory.length; i++) {
       if (!sizes.includes(roomsOfCurrentCategory[i].size)) {
         sizes.push(roomsOfCurrentCategory[i].size);
@@ -141,7 +154,7 @@ function PlayCastles() {
 
     setActivePlayer(players.map( player => { // Kan man bruke find-updatedPlayers? Usikker på om det skaper sync-issues
       // Finner/setter activePlayer, og oppdaterer samtidig med samme informasjon som oppdateres i 'players'.
-      // Tror jeg kan oppdatere activePlayer uten å iterere over 'players' | Er clickedPlayerIndex tilgjengelig her?
+      // Tror jeg kan oppdatere activePlayer uten å iterere over 'players' | Er activePlayerIndex tilgjengelig her?
       if (player.name === activePlayer.name) {
         // console.log(" setActivePlayer in handleCategoryChange -> ", player.name, player.selectedRoomCategory, newCategory, player.selectedRoomSize, player.selectedRoomBonus)
         return { 
@@ -160,9 +173,10 @@ function PlayCastles() {
   const handleRoomSizeChange = (nySize) => { 
     const newSize = Number(nySize); // Kan jeg forenkle dette ? -> Av en eller anne grunn finner den ikke rommet når jeg forenkler. Revisit.
     const bonuses = castleRooms.current.filter(room => 
-      room.category === players[clickedPlayerIndex].selectedRoomCategory 
+      room.category === players[activePlayerIndex].selectedRoomCategory 
       && room.size === Number(newSize) 
       && room.bonus).map(room => room.bonus); 
+    console.log("Bonuses i handleRoomSizeChange: ", bonuses);
     setPlayers(prevPlayers => prevPlayers.map(player => {
       if (player.name === activePlayer.name) {
         return {
@@ -205,7 +219,7 @@ function PlayCastles() {
   const addRoom = () => { 
     // console.log("-------------> Adding room");
     // try {
-    //   console.log("clickedRoom.completionBonus", players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus);
+    //   console.log("clickedRoom.completionBonus", players[activePlayerIndex].roomsArray[clickedRoomIndex].completionBonus);
     // } catch (error) {
     //   console.log("Couldn't find room.completionBonus");
     // };
@@ -241,7 +255,7 @@ function PlayCastles() {
       // When added room is "Stairs" or "Hallway" form downstairsBonus  (???)
       // Prøver å erstatte activeRoom med enten selectedCorridorbonus eller activeRoom; antar at bare én av dem er aktive av gangen.
       const tempRoom = selectedCorridorBonus ? castleRooms.current.find(room => room.roomName === selectedCorridorBonus) : activeRoom;
-      console.log("tempRoom: ", tempRoom.roomName, tempRoom.value);
+      console.log("tempRoom: ", tempRoom.roomName, tempRoom.value); //debug
       const downstairsRoomsWithBonus = activePlayer.roomsArray 
       .filter(room => room.category === "Downstairs" && room.bonus === tempRoom.category); // Plukker ut downstairs rooms med relevant bonus
       let updatedScoresArray = activePlayer.scoresArray; //Beware of sync issues
@@ -282,7 +296,8 @@ function PlayCastles() {
       };
       setToastMessage({message: "Click rooms that gain bonuses or penalties, or have exits closed", color: '#33bd4c'});
       // updateTotalScore skal endres til å bare summere scoresArray(ved Modal close). (Foreløpig kompenserer denne for sync-issues.)
-      updateTotalScore(downstairsBonus + moreDownstairsBonus + tempRoom.value); // Downstairs bonus inneholder både verdiene til nyeste downstairs room, FLYTTET -> og oppdaterte verdier for tidligere downstairs rooms.
+      updateTotalScore(activePlayerIndex, tempRoom.value); // Downstairs bonus inneholder både verdiene til nyeste downstairs room, FLYTTET -> og oppdaterte verdier for tidligere downstairs rooms.
+      // Dobbel loggføring for update score? Både i scoresArray og i addScore?
       displayToast();
     } else if (!activeRoom && !selectedCorridorBonus) {
       setToastMessage({message: "Please select an actual room", color: '#f0ad4e'});
@@ -299,8 +314,7 @@ function PlayCastles() {
 
   const endTurn = () => { 
     // Bytter til neste activePlayer
-    // setIsModalOpen(false); // Prøver å fikse 'undefined reading category' i Modal --> funka ikke
-    setClickedRoom(null); // Prøver å fikse 'undefined reading category' i Modal --> FUNKER!!
+    setClickedRoom(null); 
     console.log("_________________________________________________________endTurn running");
     setPlayers(prevPlayers => prevPlayers.map(player => 
       player.name === activePlayer.name ? { 
@@ -310,7 +324,7 @@ function PlayCastles() {
     const currentIndex = players.findIndex(player => player.name === activePlayer.name); // potensielle sync-issues?
     const nextIndex = (currentIndex + 1) % players.length; 
     setActivePlayer(players[nextIndex]);
-    setClickedPlayerIndex(nextIndex); // Tror disse to egentlig gjør samme jobb, og er redundante.
+    setActivePlayerIndex(nextIndex); // Tror disse to egentlig gjør samme jobb, og er redundante.
     setCorridorBonusConfirmationMessage(false); 
     setCorridorbonusUsed(false);
     setDownstairsCorridorBonusChosen(false);
@@ -344,15 +358,15 @@ function PlayCastles() {
   
   const [clickedRoom, setClickedRoom] = useState(null); // Brukes den?
   const [clickedRoomIndex, setClickedRoomIndex] = useState(1);  // useState(null) hvorfor er den '1'? Hva med '0'?
-  const [clickedPlayerIndex, setClickedPlayerIndex] = useState(1); // useState(null)
+  const [activePlayerIndex, setActivePlayerIndex] = useState(1); // useState(null)
 
 
   const adjustOpenExits = (change) => {
-    if (players[clickedPlayerIndex].roomsArray[clickedRoomIndex].openExits + change > 0) {
+    if (players[activePlayerIndex].roomsArray[clickedRoomIndex].openExits + change > 0) {
       setDisableModalOKbutton(false); // enabler ikke uten exit-change
     } // re-enabler OK når openExits > 0
     setPlayers(prevPlayers => prevPlayers.map((player, index) => 
-      index === clickedPlayerIndex ? {
+      index === activePlayerIndex ? {
           ...player,
           roomsArray: player.roomsArray.map((room, rindex) => 
             rindex === clickedRoomIndex ? {
@@ -366,11 +380,11 @@ function PlayCastles() {
   
   // Gir bonus poeng for riktig adjacent room (Downstairs bør logges automatisk)
   const adjustRoomBonus = (change) => {// Husk alert for bonus(exit?) decrease
-    const livingRoomCompleteDoubler = players[clickedPlayerIndex].roomsArray[clickedRoomIndex].category === "Living" 
-                                      && players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus
+    const livingRoomCompleteDoubler = players[activePlayerIndex].roomsArray[clickedRoomIndex].category === "Living" 
+                                      && players[activePlayerIndex].roomsArray[clickedRoomIndex].completionBonus
                                       ? 2 : 1; // Hvis Living romm bonuser justeres etter at rommet er scoret. 
     setPlayers(prevPlayers => prevPlayers.map((player, index) => 
-      index === clickedPlayerIndex ? {
+      index === activePlayerIndex ? {
         ...player,
         roomsArray: player.roomsArray.map((room, rindex) => // også scoresArray
           rindex === clickedRoomIndex ? {
@@ -378,7 +392,7 @@ function PlayCastles() {
             bonusesAchieved: room.bonusesAchieved + change
           } : room),
         scoresArray: player.scoresArray.map((score, sindex) => 
-          sindex === clickedRoomIndex ?  score + change * livingRoomCompleteDoubler * players[clickedPlayerIndex].roomsArray[clickedRoomIndex].bonusValue : score) 
+          sindex === clickedRoomIndex ?  score + change * livingRoomCompleteDoubler * players[activePlayerIndex].roomsArray[clickedRoomIndex].bonusValue : score) 
       } : player
     ));
   };
@@ -386,7 +400,7 @@ function PlayCastles() {
   // Legger til 5p activity bonus når 'Confirm' klikkes
   const handleActivityBonus = (complete) => {
     setPlayers(prevPlayers => prevPlayers.map((player, index) => 
-      index === clickedPlayerIndex ? {
+      index === activePlayerIndex ? {
         ...player,
         roomsArray: player.roomsArray.map((room, rindex) => 
           rindex === clickedRoomIndex ? {
@@ -401,7 +415,7 @@ function PlayCastles() {
   // Enabler 'addRoom' knappen (food bonus) når 'Confirm' klikkes
   const handleFoodBonus = (complete) => {
     setPlayers(prevPlayers => prevPlayers.map((player, index) => 
-      index === clickedPlayerIndex ? {
+      index === activePlayerIndex ? {
         ...player,
         roomAdded: !complete, // Må ikke føkke opp før rom er lagt til --> Disable room buttons frem til rom er lagt til.
         roomsArray: player.roomsArray.map((room, rindex) => 
@@ -415,7 +429,7 @@ function PlayCastles() {
   // scores selected living room anew
   const handleLivingRoomBonus = (complete) => {
     setPlayers(prevPlayers => prevPlayers.map((player, index) =>
-      index === clickedPlayerIndex ? {
+      index === activePlayerIndex ? {
         ...player,
         roomsArray: player.roomsArray.map((room, rindex) => 
           rindex === clickedRoomIndex ? {
@@ -442,7 +456,7 @@ function PlayCastles() {
     // console.log("handleCorridorRoomBonus running");
     if (["Hallway", "Stairs", "N/A"].includes(inputCorridorBonus) && !downstairsCorridorBonusChosen){
       setPlayers(prevPlayers => prevPlayers.map((player, index) => 
-        index === clickedPlayerIndex ? {
+        index === activePlayerIndex ? {
           ...player,
           roomsArray: player.roomsArray.map((room, rindex) => 
             rindex === clickedRoomIndex ? {
@@ -453,7 +467,7 @@ function PlayCastles() {
       } : player));
     setActivePlayer(prevPlayer => ({
       ...prevPlayer,
-      roomsArray: players[clickedPlayerIndex].roomsArray.map((room, roomIndex) => 
+      roomsArray: players[activePlayerIndex].roomsArray.map((room, roomIndex) => 
         roomIndex === clickedRoomIndex ? {
           ...room,
           completionBonus: true,
@@ -465,7 +479,7 @@ function PlayCastles() {
     else if (downstairsCorridorBonusChosen){ // Skal ikke være mulig å komme hit uten å velge "Hallway" eller "Stairs"
       // console.log("\t downstairsCorridorBonus: handleCorridorBonus");
       setPlayers(prevPlayers => prevPlayers.map((player, index) => 
-        index === clickedPlayerIndex ? {
+        index === activePlayerIndex ? {
           ...player,
           roomsArray: player.roomsArray.map((room, rindex) => 
             rindex === clickedRoomIndex ? {
@@ -476,7 +490,7 @@ function PlayCastles() {
       } : player));
     setActivePlayer(prevPlayer => ({
       ...prevPlayer,
-      roomsArray: players[clickedPlayerIndex].roomsArray.map((room, roomIndex) => 
+      roomsArray: players[activePlayerIndex].roomsArray.map((room, roomIndex) => 
         roomIndex === clickedRoomIndex ? {
           ...room,
           // completionBonus: true, // redundant?
@@ -488,7 +502,7 @@ function PlayCastles() {
     else if (inputCorridorBonus === "Cancel"){ // 'No' button gjør corridorBonus available igjen == bad
       //Setter openExits = 1 og lukker Modalen 
       setPlayers(prevPlayers => prevPlayers.map((player, index) => 
-      index === clickedPlayerIndex ? {
+      index === activePlayerIndex ? {
         ...player,
         roomsArray: player.roomsArray.map((room, rindex) => 
           rindex === clickedRoomIndex ? {
@@ -522,13 +536,13 @@ function PlayCastles() {
     setPlayers(prevPlayers => {
       const downstairsActivityBonus = chosenBonusFromButton === "Activity" ? 5 : 0;
       const downstairsLivingBonus = chosenBonusFromButton === "Living" 
-        ? prevPlayers[clickedPlayerIndex].roomsArray.filter(
-        room => room.category === prevPlayers[clickedPlayerIndex].roomsArray[clickedRoomIndex].bonus).length // Re-scoreing downstairs bonus for all rooms
-        * prevPlayers[clickedPlayerIndex].roomsArray[clickedRoomIndex].bonusValue 
-        + players[clickedPlayerIndex].roomsArray[clickedRoomIndex].value : 0;
+        ? prevPlayers[activePlayerIndex].roomsArray.filter(
+        room => room.category === prevPlayers[activePlayerIndex].roomsArray[clickedRoomIndex].bonus).length // Re-scoreing downstairs bonus for all rooms
+        * prevPlayers[activePlayerIndex].roomsArray[clickedRoomIndex].bonusValue 
+        + players[activePlayerIndex].roomsArray[clickedRoomIndex].value : 0;
       // Scorer dette kjellerrommet om igjen med nåværende bonus. Påvirker ikke bonuser som legges til senere(Burde den? Hva sier reglene? Dersom den skal gjøre det, må det gjøres en bonus-sjekk for å sjekke om bonusen skal dobles).
       return prevPlayers.map((player, index) => 
-        index === clickedPlayerIndex ? {
+        index === activePlayerIndex ? {
           ...player,
           roomAdded: foodBonus,
           roomsArray: player.roomsArray.map((room, rindex) => 
@@ -555,8 +569,8 @@ function PlayCastles() {
   // Dialog for enten å velge bonus, eller informasjon om at ett rom til må lukkes.
   const handleDownstairsCompletionBonusText = () => { //Den kjøres 4 ganger. Hvorfor? Er det et problem? 
     // bonusActive avgjør om det skal aktiveres og velges en bonus (trenger den være en state-variable?)
-    setBonusActive(players[clickedPlayerIndex].roomsArray.filter(room => room.category === "Downstairs" && room.completionBonus).length % 2 === 1);
-    // console.log("handleDownstairsCompletionBonusText, bonusActive: ", players[clickedPlayerIndex].roomsArray.filter(room => room.category === "Downstairs" && room.completionBonus).length % 2 === 1);
+    setBonusActive(players[activePlayerIndex].roomsArray.filter(room => room.category === "Downstairs" && room.completionBonus).length % 2 === 1);
+    // console.log("handleDownstairsCompletionBonusText, bonusActive: ", players[activePlayerIndex].roomsArray.filter(room => room.category === "Downstairs" && room.completionBonus).length % 2 === 1);
     if (bonusActive){
       return (
         <div className="radio-buttons">
@@ -600,16 +614,16 @@ function PlayCastles() {
   // Trigger de respektive room-bonuses når openExits === 0
   const activateRoomBonus = () => { 
     // console.log("activateRoomBonus running");
-    // console.log("completionBonus test: ", players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus); //funker (completionBonus er 'true' når metoden kalles)
-    (['Activity', 'Living', 'Downstairs', 'Food', 'Corridor'].includes(players[clickedPlayerIndex].roomsArray[clickedRoomIndex].category) 
-    && !players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus) // Disabler OK-knappen når en bonus trenger bekreftelse.
+    // console.log("completionBonus test: ", players[activePlayerIndex].roomsArray[clickedRoomIndex].completionBonus); //funker (completionBonus er 'true' når metoden kalles)
+    (['Activity', 'Living', 'Downstairs', 'Food', 'Corridor'].includes(players[activePlayerIndex].roomsArray[clickedRoomIndex].category) 
+    && !players[activePlayerIndex].roomsArray[clickedRoomIndex].completionBonus) // Disabler OK-knappen når en bonus trenger bekreftelse.
     || corridorBonusConfirmationMessage // Corridor bonus logikken krever en ekstra test.
     || downstairsCorridorBonusChosen ?  // Det gjør downstairsCorridorBonus også
     setDisableModalOKbutton(true) : setDisableModalOKbutton(false); // Re-enabler knappen når bonus er registrert i rommet (spesielt aktuelt for downstairs og Corridor?)
     // 'confirm' setter .completionBonus -> Enabler knappen.
     
     // Outdoor bonus
-    if (players[clickedPlayerIndex].roomsArray[clickedRoomIndex].category === "Outdoor") {
+    if (players[activePlayerIndex].roomsArray[clickedRoomIndex].category === "Outdoor") {
       return (
         <div className="bonus-add-on">
           <div>
@@ -624,7 +638,7 @@ function PlayCastles() {
         </div>
       )
       // Sleep bonus
-    } else if (players[clickedPlayerIndex].roomsArray[clickedRoomIndex].category === "Sleep") {
+    } else if (players[activePlayerIndex].roomsArray[clickedRoomIndex].category === "Sleep") {
       return (
         <div className="bonus-add-on">
           <div>
@@ -641,7 +655,7 @@ function PlayCastles() {
         </div>
       )
       // Utility bonus
-    } else if (players[clickedPlayerIndex].roomsArray[clickedRoomIndex].category === "Utility") {
+    } else if (players[activePlayerIndex].roomsArray[clickedRoomIndex].category === "Utility") {
       return (
         <div className="bonus-add-on">
           <div>
@@ -657,7 +671,7 @@ function PlayCastles() {
         </div>
       )
       // Activity bonus
-    } else if (players[clickedPlayerIndex].roomsArray[clickedRoomIndex].category === "Activity") {
+    } else if (players[activePlayerIndex].roomsArray[clickedRoomIndex].category === "Activity") {
       return (
         <div className="bonus-add-on">
           <div>
@@ -665,11 +679,11 @@ function PlayCastles() {
           </div>
           <div>
             5 extra points!<br />
-            <button disabled={players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus} onClick={() => 
+            <button disabled={players[activePlayerIndex].roomsArray[clickedRoomIndex].completionBonus} onClick={() => 
               handleActivityBonus(true)}>
               Confirm
             </button>
-            <button disabled={!players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus} onClick={() => 
+            <button disabled={!players[activePlayerIndex].roomsArray[clickedRoomIndex].completionBonus} onClick={() => 
               handleActivityBonus(false)}>
               Undo
             </button>
@@ -680,7 +694,7 @@ function PlayCastles() {
         </div>
       )
       // Food room bonus
-    } else if (players[clickedPlayerIndex].roomsArray[clickedRoomIndex].category === "Food") {
+    } else if (players[activePlayerIndex].roomsArray[clickedRoomIndex].category === "Food") {
       return (
         <div className="bonus-add-on">
           <div>
@@ -688,11 +702,11 @@ function PlayCastles() {
           </div>
           <div>
             Have an extra turn!<br />
-            <button disabled={players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus} onClick={() => 
+            <button disabled={players[activePlayerIndex].roomsArray[clickedRoomIndex].completionBonus} onClick={() => 
               handleFoodBonus(true)}>
               Confirm
             </button>
-            <button disabled={!players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus} onClick={() => 
+            <button disabled={!players[activePlayerIndex].roomsArray[clickedRoomIndex].completionBonus} onClick={() => 
               handleFoodBonus(false)}>
               Undo
             </button>
@@ -703,7 +717,7 @@ function PlayCastles() {
         </div>
       )
       //Living room bonus
-    } else if (players[clickedPlayerIndex].roomsArray[clickedRoomIndex].category === "Living") {
+    } else if (players[activePlayerIndex].roomsArray[clickedRoomIndex].category === "Living") {
       return ( 
         <div className="bonus-add-on">
           <div>
@@ -711,11 +725,11 @@ function PlayCastles() {
           </div>
           <div>
             Room scored anew!<br />
-            <button disabled={players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus} onClick={() => 
+            <button disabled={players[activePlayerIndex].roomsArray[clickedRoomIndex].completionBonus} onClick={() => 
               handleLivingRoomBonus(true)}>
               Confirm
             </button>
-            <button disabled={!players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus} onClick={() => 
+            <button disabled={!players[activePlayerIndex].roomsArray[clickedRoomIndex].completionBonus} onClick={() => 
               handleLivingRoomBonus(false)}>
               Undo
             </button>
@@ -728,41 +742,38 @@ function PlayCastles() {
 
 
     // kontrollerer Downstairs bonus !! Husk at noen Downstairs har bare 1 exit (må automatisk trigge bonus-Modal (Kan man angre addRoom?)) !!
-    } else if (players[clickedPlayerIndex].roomsArray[clickedRoomIndex].category === "Downstairs"
+    } else if (players[activePlayerIndex].roomsArray[clickedRoomIndex].category === "Downstairs"
     && !downstairsCorridorBonusChosen) {
 //      const chosenDownstairsBonus = ""; 
-      if (downstairsBonusConfirmationMessage || players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus) { // handleDownstairsCompletionBonusText skal ikke displayes, må erstattes av chosen bonus
+      if (downstairsBonusConfirmationMessage || players[activePlayerIndex].roomsArray[clickedRoomIndex].completionBonus) { // handleDownstairsCompletionBonusText skal ikke displayes, må erstattes av chosen bonus
         // hvordan oppfører 'downstairsBonusConfirmationMessage' seg på tvers av rom?
         // console.log("Downstairs Lock-warning");
         return (
           <div className="bonus-add-on">
             <div>{/* Hvorfor er det en dobbel <div> her?? For å få knappene på linje, og unngå rot med 'Change choice' knappen */}
-              {!players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus 
+              {!players[activePlayerIndex].roomsArray[clickedRoomIndex].completionBonus 
               && ( <div>
                 WARNING!<br />
                 When bonus is Locked, <br />
                 it cannot be changed! <br /><br />
                 Selected bonus: {selectedDownstairsBonus}<br />
               </div>)}
-              {players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus 
+              {players[activePlayerIndex].roomsArray[clickedRoomIndex].completionBonus 
               && ( <div>
                 Bonus locked<br /><br />
-                Selected bonus: {players[clickedPlayerIndex].roomsArray[clickedRoomIndex].chosenDownstairsBonus}<br />{/* Må bytte mellom locked og unlocked */}
+                Selected bonus: {players[activePlayerIndex].roomsArray[clickedRoomIndex].chosenDownstairsBonus}<br />{/* Må bytte mellom locked og unlocked */}
               </div>)}   
-              <button disabled={players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus} onClick={() => {
+              <button disabled={players[activePlayerIndex].roomsArray[clickedRoomIndex].completionBonus} onClick={() => {
                 handleDownstairsBonus(selectedDownstairsBonus); 
                 // setter room.completionBonus: true, room.chosenDownstairsBonus: selectedDownstairsBonus
                 setdownstairsBonusConfirmationMessage(false); // Resettes for neste downstairs-room
-                setSelectedDownstairsBonus("N/A"); // Resettes for neste downstairs-room !Må ikke resettes før chosenDownstairsBonus er satt
-                // Må sette chosenDownstairsBonus(instance) før selectedDownstairsBonus(state) resettes
-                // -> FUNKER IKKE setDisableModalOKbutton(true); // passer på at Modal ikke kan lukkes når/hvis corridor-bonus blir valgt
-                // trenger kanskje en if- for å ikke messe opp for andre bonuser 
+                setSelectedDownstairsBonus("N/A"); // Resettes for neste downstairs-room
                 }}>
                 Lock bonus
               </button>
               { bonusActive // Displayer 'Change choice' knappen bare når det har vært et valg.
               && ( 
-                <button disabled={players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus} onClick={() => {
+                <button disabled={players[activePlayerIndex].roomsArray[clickedRoomIndex].completionBonus} onClick={() => {
                   // må bare displayes dersom bonus kan velges
                   setdownstairsBonusConfirmationMessage(false); // Lar spilleren velge på ny
                   }}>{/* Hva er det som disabler denne knappen? -> ? */}
@@ -780,7 +791,7 @@ function PlayCastles() {
               {handleDownstairsCompletionBonusText()}
             </div>
             <div>
-              <button disabled={players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus} onClick={() => 
+              <button disabled={players[activePlayerIndex].roomsArray[clickedRoomIndex].completionBonus} onClick={() => 
                 setdownstairsBonusConfirmationMessage(true)}>
                 Confirm
               </button>
@@ -791,17 +802,17 @@ function PlayCastles() {
       }; // downstairsBonus
 
     // Corridor bonus 
-    } else if (players[clickedPlayerIndex].roomsArray[clickedRoomIndex].category === "Corridor"
+    } else if (players[activePlayerIndex].roomsArray[clickedRoomIndex].category === "Corridor"
     || downstairsCorridorBonusChosen) {
       // console.log("Entering corridor bonus segment");
-      // console.log("clickedPlayer:", clickedPlayerIndex, "ClickedRoom: ", clickedRoomIndex);
+      // console.log("clickedPlayer:", activePlayerIndex, "ClickedRoom: ", clickedRoomIndex);
       return(
       <div className="bonus-add-on">
         <div>
           Corridor room bonus: <br />
         </div>
         {(downstairsCorridorBonusChosen || (!corridorBonusConfirmationMessage 
-        && !players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus 
+        && !players[activePlayerIndex].roomsArray[clickedRoomIndex].completionBonus 
         && !corridorBonusUsed))
         && <div>
           <div>
@@ -840,14 +851,14 @@ function PlayCastles() {
         </div>}
           {/* End of choose !corrodorBonusConfirmationMessage && !corridorBonusUsed && !completionBonus */}
         {corridorBonusConfirmationMessage 
-        && players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus // satt ved 'confirm' <-- Dette er et problem.
+        && players[activePlayerIndex].roomsArray[clickedRoomIndex].completionBonus // satt ved 'confirm' <-- Dette er et problem.
         && !corridorBonusUsed // ikke satt, tror jeg
         && <div>
           <div>
             WARNING!<br />
             When bonus is Locked, <br />
             it cannot be changed! <br /><br />
-            Chosen bonus: {players[clickedPlayerIndex].roomsArray[clickedRoomIndex].chosenCorridorBonus}
+            Chosen bonus: {players[activePlayerIndex].roomsArray[clickedRoomIndex].chosenCorridorBonus}
           </div>
           <span>
             <button disabled={corridorBonusUsed} onClick={() => { // er disabled funksjonell?
@@ -870,7 +881,7 @@ function PlayCastles() {
         {/* End of corridorBonusConfirmationMessage 
         && !.completionBonus 
         && !corridorBonusUsed */}
-        {(corridorBonusUsed && !players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus) // completionBonus setter ikke ved 'Lock'?? sync eller logisk issue?
+        {(corridorBonusUsed && !players[activePlayerIndex].roomsArray[clickedRoomIndex].completionBonus) // completionBonus setter ikke ved 'Lock'?? sync eller logisk issue?
         && <div> {/* Trenger jeg !corridorBonusConfirmationMessage her? */}
           You have already received a corridor bonus.<br />
           Only one corridor bonus may be claimed each round.<br />
@@ -878,23 +889,20 @@ function PlayCastles() {
           <span style={{float:'center'}}>WARNING: This action cannot be undone!<br /></span>
           <span>
             <button onClick={() => {
-              //setIsModalOpen(false); // Dårlig UX?
               handleCorridorRoomBonus("N/A"); 
                   // setting completionBouns: true
               setSelectedCorridorBonus(""); // Må settes her fordi addRoom ikke kjøres ved 'Yes!'-click.
-              // Lukker modal - uønsket, dårlig UX. (hvorfor lukkes den?)
             }}>Yes!</button>
             <button onClick={() => {
               handleCorridorRoomBonus("Cancel");
-              // selectedCorridorBonus == ""?
             }}>No</button>
           </span>
         </div>}
         {/* End of corridorBonusUsed && !room.completionBonus */}
-        {players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus
+        {players[activePlayerIndex].roomsArray[clickedRoomIndex].completionBonus
         && !corridorBonusConfirmationMessage // resett corridorBonusconfirmationMessage
         && <div>
-          {players[clickedPlayerIndex].roomsArray[clickedRoomIndex].chosenCorridorBonus}
+          {players[activePlayerIndex].roomsArray[clickedRoomIndex].chosenCorridorBonus}
         </div>}
         {/* Room completed with displayed bonus */}
         <div>
@@ -906,14 +914,18 @@ function PlayCastles() {
   }; // activateRoomBonus  
   
   const findImageFile = (category, size, bonus, name) => { 
-    if (size === 125) {
-      //console.log(`IMAGE -> Starting-${name}.jpg`)
-      return(`Starting-${name}.jpg`);
-    } else if (!bonus) { // Lag checkbox for dropdown til room name. 
-      return(`${category}-${size}-${name}.jpg`);
-    } else if (bonus) {
-      return(`${category}-${size}-${bonus}-${name}.jpg`);
-    };
+    try{
+      if (size === 125) {
+        return(`Starting-${name}.jpg`);
+      } else if (!bonus) { // Lag checkbox for dropdown til room name. 
+        return(`${category}-${size}-${name}.jpg`);
+      } else if (bonus) {
+        return(`${category}-${size}-${bonus}-${name}.jpg`);
+      };
+    } catch {
+      console.log("Image file not found");
+      return("Bed.jpg") // Bug-image
+    }
   };
 
   const endTurnFocus = useRef(null)
@@ -953,25 +965,26 @@ function PlayCastles() {
         <div className="modal-content">
           {/* Ønsker å legge til en modul over bildet, uten at posisjonen til resten av innholdet flyttes - komplisert, gir midlertidig opp denne*/}
           <div className="dynamic-content-area">
-            {players[clickedPlayerIndex].roomsArray[clickedRoomIndex].openExits === 0 ? activateRoomBonus() : null}
+            {players[activePlayerIndex].roomsArray[clickedRoomIndex].openExits === 0 ? activateRoomBonus() : null}
           </div>
           {children}
           <div>
-            <span>Open exits</span><span style={{float:'right'}}>Room bonus</span>
+            <span>Open exits</span><span style={{float:'right', marginLeft: '20px'}}>Room bonus</span>
           </div>
           <div>
-            <button disabled={players[clickedPlayerIndex].roomsArray[clickedRoomIndex].openExits === 0} onClick={() => adjustOpenExits(-1)}>-</button>
-            <span style={{fontSize: '18px'}}><b> {players[clickedPlayerIndex].roomsArray[clickedRoomIndex].openExits} </b></span>
-            <button disabled={players[clickedPlayerIndex].roomsArray[clickedRoomIndex].openExits === players[clickedPlayerIndex].roomsArray[clickedRoomIndex].exits - 1
-            || players[clickedPlayerIndex].roomsArray[clickedRoomIndex].completionBonus} onClick={() => adjustOpenExits(1)}>+</button>
-            {clickedRoom.category !== "Downstairs" && <span style={{float:'right', fontSize: '18px'}}>
-              <button disabled={players[clickedPlayerIndex].roomsArray[clickedRoomIndex].bonusesAchieved === 0} onClick={() => adjustRoomBonus(-1)}>-</button>
-              <b> {players[clickedPlayerIndex].roomsArray[clickedRoomIndex].bonusValue} x {players[clickedPlayerIndex].roomsArray[clickedRoomIndex].bonusesAchieved} </b>
-              <button disabled={ !(players[clickedPlayerIndex].roomsArray[clickedRoomIndex].category === "Activity") && players[clickedPlayerIndex].roomsArray[clickedRoomIndex].bonusesAchieved === players[clickedPlayerIndex].roomsArray[clickedRoomIndex].exits} onClick={() => adjustRoomBonus(1)}>+</button>
-              </span>}
+            <button disabled={players[activePlayerIndex].roomsArray[clickedRoomIndex].openExits === 0} onClick={() => adjustOpenExits(-1)}>-</button>
+            <span style={{fontSize: '18px'}}><b> {players[activePlayerIndex].roomsArray[clickedRoomIndex].openExits} </b></span>
+            <button disabled={players[activePlayerIndex].roomsArray[clickedRoomIndex].openExits === players[activePlayerIndex].roomsArray[clickedRoomIndex].exits - 1
+            || players[activePlayerIndex].roomsArray[clickedRoomIndex].completionBonus} onClick={() => adjustOpenExits(1)}>+</button>
+            {clickedRoom.category !== "Downstairs" 
+            && <span style={{float:'right', fontSize: '18px'}}>
+              <button disabled={players[activePlayerIndex].roomsArray[clickedRoomIndex].bonusesAchieved === 0} onClick={() => adjustRoomBonus(-1)}>-</button>
+              <b> {players[activePlayerIndex].roomsArray[clickedRoomIndex].bonusValue} x {players[activePlayerIndex].roomsArray[clickedRoomIndex].bonusesAchieved} </b>
+              <button disabled={ !(players[activePlayerIndex].roomsArray[clickedRoomIndex].category === "Activity") && players[activePlayerIndex].roomsArray[clickedRoomIndex].bonusesAchieved === players[activePlayerIndex].roomsArray[clickedRoomIndex].exits} onClick={() => adjustRoomBonus(1)}>+</button>
+            </span>}
           </div >
           <div style={{ display: 'flex', justifyContent: 'center' }}>
-            <button ref={okButtonRef} onClick={onClose} disabled={disableModalOKbutton}>OK</button>{/* Hva er onClose? setter isModalOpen=false i <Modal>?*/}
+            <button style={{marginTop: '10px'}} ref={okButtonRef} onClick={onClose} disabled={disableModalOKbutton}>OK</button>{/* Hva er onClose? setter isModalOpen=false i <Modal>?*/}
           </div>
         </div>
       </div>), // Portal
@@ -1066,6 +1079,65 @@ function PlayCastles() {
     setRandomPlayerOrder(e.target.checked);
   });
 
+  const getRoomName = () => { // Sending room name to Modal
+    // console.log("Messer opp delete room?") // kalles til sammen 4 ganger (kan vel ikke være nødvendig?)
+    try{
+      return(players[activePlayerIndex].roomsArray[clickedRoomIndex].roomName
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' '));}
+    catch (error) {
+      console.log("catch", error);
+      return("NoNameFound")
+    }
+  };
+
+  const deleteRoom = (deleteRoomFromPlayerIndex, deleteRoomIndex) => { //
+    console.log("deleteRoom function running");
+    console.log("clickedPlayerIndex: ", deleteRoomFromPlayerIndex, "clickedRoomIndex: ", deleteRoomIndex);
+    // bruk splice på roomsArray og scoresArray, og oppdater players splice(index, deleteCount. addtitions)
+    // Adjusting downstairs bonus for selected room category (NOT WORKING)
+    let newScoresArray = players[deleteRoomFromPlayerIndex].scoresArray;
+    console.log("newScoresArray1: ", newScoresArray);
+    let downstairsBonusReduction = 0;
+    for (let i = 0; i < players[deleteRoomFromPlayerIndex].roomsArray.length; i++) {
+      console.log("deleted-room-category: ", players[deleteRoomFromPlayerIndex].roomsArray[deleteRoomIndex].category, " - all-rooms-bonus: ", players[deleteRoomFromPlayerIndex].roomsArray[i].bonus, " - all-rooms-category: ",players[deleteRoomFromPlayerIndex].roomsArray[i].category);
+      // IF deletedRoom.category === room.bonus && room.category === "Downstairs" THEN remove bonusValue from room.scoresArray[i]
+      if (players[deleteRoomFromPlayerIndex].roomsArray[deleteRoomIndex].category // category of deleted room
+        === players[deleteRoomFromPlayerIndex].roomsArray[i].bonus // bonus of room [i]
+        && players[deleteRoomFromPlayerIndex].roomsArray[i].category === "Downstairs") {// only if room [i] is downstairs
+        console.log("if downstairs bonus"); // debug, remove
+        // if deleted room category is equal to downstairs room bonus, adjust scoresArray for downstairs room
+        newScoresArray = players[deleteRoomFromPlayerIndex].scoresArray.toSpliced(i, 1, players[deleteRoomFromPlayerIndex].scoresArray[i] - players[deleteRoomFromPlayerIndex].roomsArray[i].bonusValue); // reducing downstairs bunus with downstairsRoom.bonusValue
+        downstairsBonusReduction += players[deleteRoomFromPlayerIndex].roomsArray[i].bonusValue; // counter going into updateTotalScore
+      }; // if
+    }; // for
+  // Removing selected room and corresponding score. 
+    if (deleteRoomIndex > 0) {
+      console.log("newScoresArray2: ", newScoresArray, newScoresArray.toSpliced(deleteRoomIndex, 1), players[deleteRoomFromPlayerIndex].scoresArray)
+      let addRoomButtonInActive = true;
+      if (activePlayerIndex === deleteRoomFromPlayerIndex 
+        && deleteRoomIndex + 1 === players[deleteRoomFromPlayerIndex].roomsArray.length) {
+          addRoomButtonInActive = false;
+        }
+        else {
+          addRoomButtonInActive = players[activePlayerIndex].roomAdded;
+        }
+      setPlayers(prevPlayers => prevPlayers.map(player => 
+        deleteRoomFromPlayerIndex === players.indexOf(player) ? {
+        ...player,
+        roomsArray: players[deleteRoomFromPlayerIndex].roomsArray.toSpliced(deleteRoomIndex, 1),
+        scoresArray: newScoresArray.toSpliced(deleteRoomIndex, 1), // players[deleteRoomFromPlayerIndex].scoresArray.toSpliced(deleteRoomIndex, 1), 
+        roomAdded: addRoomButtonInActive, // not working
+      } : player)); 
+    }
+    // Deleting clickedRoom from roomsArray and scoresArray, update score, update downstairs bonus(isolate code for downstairs bonus?).
+    setDeleteRoomButtonActive(false);
+    console.log("Setting deleteRoomButtonActive to false");
+    // needs input from adjusted scoresArray?
+    updateTotalScore(deleteRoomFromPlayerIndex, -players[deleteRoomFromPlayerIndex].scoresArray[deleteRoomIndex] - downstairsBonusReduction); 
+  };
+
   const setupGame = (() => {
     let arrayOfPlayers = []; // inneholder tall. Kan også bruke 'Player #'
     for (let i = 0; i < 4; i++) {
@@ -1114,25 +1186,12 @@ function PlayCastles() {
     // console.log("Final radom player order: ", randomPlayerOrder, arrayOfPlayers);
     setPlayers(setupPlayers);
     setActivePlayer(setupPlayers[0]);
-    setClickedPlayerIndex(0);
+    setActivePlayerIndex(0);
     // Fjerner Starting-rooms, slik at de ikke kan velges i spillet (avhenger av at de ligger etter hverandre i castle_rooms.json)
     castleRooms.current.splice(castleRooms.current.indexOf(castleRooms.current.find(room => room.size === 125)), 4);
   }); //setupGame
 
-  // // Skal sette focus på "Start game" button når den blir aktiv. (Dårlig UX, må bort)
-  // useEffect( () => {
-  //   //startGameRef.current.focus();
-  //   console.log("temporary disabled startGame button (skal slettes pga UX)")
-  // },[disableStartGameButton]); // listen to disableStartGameButton?
-
   const startGameRef = useRef(null);
-
-  const debugRoomsArray = ((pindex, rindex) => { // debug, rydd opp etterpå.
-  try {
-    // console.log("Displaying room-image", players[pindex].name, players[pindex].roomsArray[rindex].roomName);
-  } catch (erorr) {
-    console.log("failed to display room-image");
-  }})
 
   if (gameStage === "Setup") {
     return(
@@ -1174,14 +1233,19 @@ function PlayCastles() {
     return (
       <div>
         <Toast message={toastMessage.message} show={showToast}/>{/* Legg Toasten i en portal */}
-        <h1>Castles Score Keeper</h1>
+        <h1>Castles Score Keeper <button 
+        className={deleteRoomButtonActive ? 'delete-room-button-active' : ''}
+        onClick={() => clickDeleteRoomButton()}>Delete room</button></h1>
         <div>
-          {clickedRoom && (
-            <Modal isOpen={isModalOpen} onClose={ () => {setIsModalOpen(false); updateTotalScore(0)}}>
+          {(clickedRoomIndex === players[activePlayerIndex].roomsArray.indexOf(players[activePlayerIndex].roomsArray[clickedRoomIndex])) // Turns false when clickedRoom is deleted
+          && clickedRoom // Needed to add rooms
+          && !deleteRoomButtonActive 
+          &&(
+            <Modal isOpen={isModalOpen} onClose={ () => {setIsModalOpen(false); updateTotalScore(activePlayerIndex, 0)}}>
               {/* Legg til exit og bonus-handling i players[index].roomsArray[index].openExits / ...bonusesAchieved => setPlayers i egen handler funksjon*/}
-                  <span>
-                    <img src={findImageFile(players[clickedPlayerIndex].roomsArray[clickedRoomIndex].category, players[clickedPlayerIndex].roomsArray[clickedRoomIndex].size, players[clickedPlayerIndex].roomsArray[clickedRoomIndex].bonus, players[clickedPlayerIndex].roomsArray[clickedRoomIndex].roomName)} style={{width: imageSize[players[clickedPlayerIndex].roomsArray[clickedRoomIndex].size] * 2}} alt="selectedRoom" />
-                    <img src={findImageFile(players[clickedPlayerIndex].roomsArray[clickedRoomIndex].category, players[clickedPlayerIndex].roomsArray[clickedRoomIndex].size, players[clickedPlayerIndex].roomsArray[clickedRoomIndex].bonus, players[clickedPlayerIndex].roomsArray[clickedRoomIndex].roomName)} style={{width: imageSize[clickedRoom.size] * 2}} alt="selectedRoom" />
+                  <div style={{textAlign: 'center', fontWeight: 'bold', fontSize: '120%' }}>{getRoomName()}</div>
+                  <span style={{textAlign: 'center'}}>
+                    <img src={findImageFile(players[activePlayerIndex].roomsArray[clickedRoomIndex].category, players[activePlayerIndex].roomsArray[clickedRoomIndex].size, players[activePlayerIndex].roomsArray[clickedRoomIndex].bonus, players[activePlayerIndex].roomsArray[clickedRoomIndex].roomName)} style={{width: imageSize[clickedRoom.size] * 2.5}} alt="selectedRoom" />
                   </span>
             </Modal>
           )}
@@ -1190,7 +1254,6 @@ function PlayCastles() {
           <thead>
             <tr key="playerheader">{/*Bredden tilpasser seg innholdet. men overstiger ikke, og kutter heller ikke teksten*/}
               <th width="20" align="left">Player</th>
-              <th width="50" align="left">Score</th>
               <th width="80" align="left">Category</th>
               <th width="30" align="left">Size</th>
               <th width="50" align="left">Bonus</th>
@@ -1204,7 +1267,6 @@ function PlayCastles() {
               <>
                 <tr key={player.name + "turn"} style={{backgroundColor: getPlayerBackgroundColor(player.color)}}>
                   <td style={{ color: player.color }}><b>{player.name}</b></td>
-                  <td align="center">{player.totalScore}</td>
                   <td align="center"> 
                     {/* Dropdown for categories */}
                     {player.name === activePlayer.name && <select name={`${player.name}-category`} placeholder ="placeholder" value={player.selectedRoomCategory} onChange={(e) => handleCategoryChange(e.target.value)}> 
@@ -1235,7 +1297,7 @@ function PlayCastles() {
                   </td>
                   <td>
                   {player.name === activePlayer.name 
-                  && <button  disabled={player.name !== activePlayer.name || player.roomAdded} type='button' onClick={() => addRoom()}>Add Room</button>}
+                  && <button  disabled={player.roomAdded} type='button' onClick={() => addRoom()}>Add Room</button>}
                   </td>
                   <td>
                   {player.name === activePlayer.name 
@@ -1243,30 +1305,36 @@ function PlayCastles() {
                     End Turn</button>}
                   </td>
                 </tr>
-                
                 {/* RoomsArray */}
                 <tr key={player.name + "rooms"} style={{backgroundColor: getPlayerBackgroundColor(player.color)}}>
                   <td colSpan="77">
                     <div className="room-container">
                       {player.roomsArray.map((room, index) => ( // index kun til debug
                         <div className="room-image-wrapper" style={{flex: `0 0 ${imageSize[room.size]}px`}}>
-                          {debugRoomsArray(playerIndex, index)/* Debugging */}
                           <button 
-                            disabled={player.name !== activePlayer.name} 
-                            onClick={() => {                      
+                            disabled={player.name !== activePlayer.name && !deleteRoomButtonActive} 
+                            onClick={() => {
                               setClickedRoom(room); // Kan denne erstattes med en annen del? room.id? players[i].roomsArray[i].* må oppdateres
                               // Er det egentlig player index og roomsArray index jeg bør bruke?
                               // Bør indeksene settes til null etter bruk?
-                              // setClickedPlayerIndex(players.indexOf(player)); // Tror denne er redundant
+                              // setActivePlayerIndex(players.indexOf(player)); // Trenger jeg denne til deleteRoom?
                               setClickedRoomIndex(player.roomsArray.indexOf(room)); // Hvis det er flere like rom i roomsArray, feiler denne.
-                              // console.log("ckickedRoomIndex: ", player.roomsArray.indexOf(room));
-                              setIsModalOpen(true);
+                              console.log("Clicked room - isModalOpen, deleteRoomButtonActive", isModalOpen, deleteRoomButtonActive);
+                              if (!deleteRoomButtonActive) {
+                                setIsModalOpen(true);
+                                console.log("setIsModalOpen to true");
+                              } else { // if not starting room
+                                deleteRoom(players.indexOf(player), player.roomsArray.indexOf(room));
+                                // har jeg riktig clickedRoomIndex? (Ja, stror det)
+                                console.log("deleteRoom button activated");
+                              }
                             }}>
                             {/* console.log(`${room.category}-${room.size}-${room.bonus}-${room.roomName}.jpg`) */}
                             <img src={findImageFile(room.category, room.size, room.bonus, room.roomName)} alt={`${room.category} room of size ${room.size}`} style={{width: '100%'}} />
                           </button>
                         </div>
                       ))}
+                      <div style={{float: 'right', fontSize: '400%'}}>{player.totalScore}</div>
                     </div>
                   </td>
                 </tr>

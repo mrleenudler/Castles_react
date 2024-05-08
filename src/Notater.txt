@@ -1,21 +1,36 @@
-Gnr. 219 Bnr. 145 Snr. 5 Ideell andel 1/1
 
-Magnus sbanken
-kjøpskontrakt sendes til 
-saksbehandlind@sbankendnb.no
-emne: 10501332 <- lånenummer eller søknadsnummer elns.
-
-slatestarcodex.com/2015/12/17/shoud-ai-be-open
 __________________________________________________
 IMPLEMENTERES NÅ
--> DownstairsFoodBonus funker ikke?
--> Legg inn RoomName i modal
--> Noen rom har ikke/feil bilder
--> IncreasetotalScore font size
+
+-> Delete-room button
+	=> sjekk at metoden fungerer som forventet.
+	X Må ikke kunne slette Starting-room.
+	X Total score må oppdateres (oppdateres ved neste rom)
+	X Delete room må være toggle, og vise visuelt om den er trykket eller ikke.
+		-> CSS for å vise om DeleteRoom button er active eller ikke.
+	X Enable all room-buttons & 
+	X disable starting room
+	X modify roomsarray + scoresArray
+
+
+
+	X Total score er for høy (har lagt til downstairsFood-Food-Food)
+	=> Skal jeg bruke 'players' eller 'prevPlayers' i deleteRoom?
+
+	X BEWARE vil clickedRoomIndex være oppdatert før rommet slettes(NEI)? Må jeg legge til en ekstra confirm?
+		-> Riktig rom slettes. Andre concerns?
+	X BEWARE clickedPlayerIndex må være riktig spiller, og eventuelt settes tilbake etter at rommet er fjernet
+		-> Bruk en annen variabel
+		-> Riktig rom slettes. Andre concerns?
+	-> Potensiell bonus: Kan jeg bruke toSpliced til å forenkle koden for setPlayers throughout?
+	X Hvis rommet som fjernes er siste rom for activePlayer, skal Add Room button reaktiveres
+
+-> category change bør repopulate Size --> bonuses.
+-> Rot med activity maluses (hva da?) <-> handleCategoryChange/handleRoomSizeChange - kan sette availableBonuses til "Bonus" i CategoryChange
+-> Bør variabler i større grad sendes til funksjonene for å sikre at de er oppdaterte? Hvordan fungerer det med tenke på state-variables?
 -> Ta høyde for at Starting player skifter -> sett focus på category for neste spiller
 -> BUG: Av og til legges det til for mange bonser i dropdown. Muligens når category endres.
-	-> Category bør resette bonuser
--> Vil ikke at 'size' og 'bonus' displayes før 'category er valgt
+	-> CategoryChange bør resette availableBonuses
 -> UpdateTotalScore: Kanskje den bare skal kalles når Modal lukkes?
 	-> Nå: Kalles ved addRoom og calculateDownstairsBonus.
 	-> Kontroller at addScore ikke legger til bonuser to ganger.
@@ -43,6 +58,7 @@ downstairs: displayes WARNING riktig?
 -> Downstairs bonus har en ekstra 'Lock' dialogoue, det har ikke Corridor bonus
 -> Corridor bonus må ikke kunne trigges uten å legge til rom først. (player.roomAdded må ikke settes i handleCorridorBonus)
 -> Ny stateVariable: corridorBonusLocked?
+-> Remove table headers
 
 -> chosenCorridorBonus, resettes den om bonus ikke Lockes?
 
@@ -212,7 +228,10 @@ react-dom.development.js:86 Warning: Encountered two children with the same key,
 ________________________________________________________________________________________________
 IMPLEMENTERES SENERE
 
+-> Fjern behovet for å sette en dummy player -> (prøv å sette players && i rendering components, spør GPT om best practice)
+-> Har jeg for mange re-renders(room-buttons)? For mange state-variables som trigger re-render?
 -> (Undo turn) / Delete room
+-> Hva er relasjonen mellom clickedRoom og clickedRoomIndex? Er de redundante?
 -> MenuStyles.css - brukes den til noe?
 -> useEffect active room -> skriv om for å rette opp i demenencies, og få addRoom ut av useEffect.
 -> I addRoom, activeRoom er mer eller mindre provisorisk erstattet med tempRoom. Sjekk om activeRoom trenger å være en stateVariable, og sett logikken for bruk av acteiveRoom/tempRoom/selectedCorridorBonus øverst i metoden.
@@ -270,7 +289,7 @@ Skaler bildene med logikk -> Sjekk skalering og juster etter behov
 -> I game setup, vil jeg force update av player name, når name velges med arrow-down, slik at den ikke deselected med tab.
 	-> Lag noe cookie handling eller noe som husker tildligere player names. 
                           disabled={player.name !== activePlayer.name || !player.roomAdded} // Legges til for å kreve nytt rom før bonuser.
-
+-> play_castles.jsx:618 Warning: Cannot update a component (`PlayCastles`) while rendering a different component (`Modal`). [Fordi Modal ligger i en portal??]
 -> Vertikal i stedet for horisontal layout?
 
 Vil at score lagrer alle rundene til senere
