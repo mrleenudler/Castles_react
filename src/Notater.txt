@@ -2,41 +2,20 @@
 __________________________________________________
 IMPLEMENTERES NÅ
 
--> Delete-room button
-	=> sjekk at metoden fungerer som forventet.
-	X Må ikke kunne slette Starting-room.
-	X Total score må oppdateres (oppdateres ved neste rom)
-	X Delete room må være toggle, og vise visuelt om den er trykket eller ikke.
-		-> CSS for å vise om DeleteRoom button er active eller ikke.
-	X Enable all room-buttons & 
-	X disable starting room
-	X modify roomsarray + scoresArray
 
-
-
-	X Total score er for høy (har lagt til downstairsFood-Food-Food)
-	=> Skal jeg bruke 'players' eller 'prevPlayers' i deleteRoom?
-
-	X BEWARE vil clickedRoomIndex være oppdatert før rommet slettes(NEI)? Må jeg legge til en ekstra confirm?
-		-> Riktig rom slettes. Andre concerns?
-	X BEWARE clickedPlayerIndex må være riktig spiller, og eventuelt settes tilbake etter at rommet er fjernet
-		-> Bruk en annen variabel
-		-> Riktig rom slettes. Andre concerns?
-	-> Potensiell bonus: Kan jeg bruke toSpliced til å forenkle koden for setPlayers throughout?
-	X Hvis rommet som fjernes er siste rom for activePlayer, skal Add Room button reaktiveres
-
--> category change bør repopulate Size --> bonuses.
--> Rot med activity maluses (hva da?) <-> handleCategoryChange/handleRoomSizeChange - kan sette availableBonuses til "Bonus" i CategoryChange
 -> Bør variabler i større grad sendes til funksjonene for å sikre at de er oppdaterte? Hvordan fungerer det med tenke på state-variables?
 -> Ta høyde for at Starting player skifter -> sett focus på category for neste spiller
--> BUG: Av og til legges det til for mange bonser i dropdown. Muligens når category endres.
-	-> CategoryChange bør resette availableBonuses
--> UpdateTotalScore: Kanskje den bare skal kalles når Modal lukkes?
-	-> Nå: Kalles ved addRoom og calculateDownstairsBonus.
-	-> Kontroller at addScore ikke legger til bonuser to ganger.
--> downstairsCorridorBonus disabler addRoom dersom rom ikke er lagt til først
-	-> Gjelder det corridorBonus også?
+
+-> downstairsCorridorBonus disabler addRoom dersom rom ikke er lagt til først (addRoom function)
+	-> player.roomAdded settes 'true' også uten bonus. Sjekk denne først -> deretter addRoom()
+	-> alle downstairsBonus disabler addRoom (=problem)
+		-> disables den for addedCorridorBonus? JA
 	-> Kontroller at setSelectedCorridorBonus ikke lager sync-isuses i addRoom. -> Eventuelt flytt den(til hvor?).
+	
+-> Delete starting room for inactive player fjerner startiong points. 
+	-> Poenget kommer tilbake ved neste interaksjon
+
+-> Rom med bare 1 exit må ikke auto-completes i Modal.
 -> Nytt valg av 'category' må resette size og bonus
 -> Focus på 'Confirm' når bonus er valgt.
 -> "Room bonus" må også fjernes (i tillegg til +/- knappene) når bonus ikke er tilgjengelig

@@ -250,7 +250,6 @@ function PlayCastles() {
         };
     };
       
-      
       let moreDownstairsBonus = 0; // til å beregene updateScore
       // When added room is "Stairs" or "Hallway" form downstairsBonus  (???)
       // Prøver å erstatte activeRoom med enten selectedCorridorbonus eller activeRoom; antar at bare én av dem er aktive av gangen.
@@ -273,6 +272,7 @@ function PlayCastles() {
           selectedRoomCategory: "Category", // Resetter dropdowns
           selectedRoomSize: "Size",
           selectedRoomBonus: "Bonus",
+          // roomAdded skal ikke skifte ved applied downstairs bonus (ikke bare selectedCorridorBonus)
           roomAdded: selectedCorridorBonus ? player.roomAdded : true, // 'Add room' knappen disables etter bruk. Re-enables ved Food-bonus
           // roomAdded må ikke settes ved corridor/downstairsCorridor bonus. 
         } : player
@@ -528,7 +528,7 @@ function PlayCastles() {
   //    -> Hva med bonuser som legges til senere? Dobles de også? *Antar de ikke dobles. 
   const handleDownstairsBonus = (chosenBonusFromButton) => { 
     setDisableModalOKbutton(false); // enabler knappen når downstairsBonus er satt.
-    const foodBonus = chosenBonusFromButton === "Food" ? false : true;
+    // const foodBonus = chosenBonusFromButton === "Food" ? false : true; //irrelevant?
     if (chosenBonusFromButton === "Corridor") {
       setDownstairsCorridorBonusChosen(true); // skifter path i activateRoomBonus
     } // 'else' her?
@@ -544,7 +544,8 @@ function PlayCastles() {
       return prevPlayers.map((player, index) => 
         index === activePlayerIndex ? {
           ...player,
-          roomAdded: foodBonus,
+          roomAdded: chosenBonusFromButton === "Food" ? false : player.roomAdded,
+          //roomAdded: foodBonus, // antas feil
           roomsArray: player.roomsArray.map((room, rindex) => 
             rindex === clickedRoomIndex ? {
               ...room,
@@ -1115,13 +1116,14 @@ function PlayCastles() {
   // Removing selected room and corresponding score. 
     if (deleteRoomIndex > 0) {
       console.log("newScoresArray2: ", newScoresArray, newScoresArray.toSpliced(deleteRoomIndex, 1), players[deleteRoomFromPlayerIndex].scoresArray)
-      let addRoomButtonInActive = true;
-      if (activePlayerIndex === deleteRoomFromPlayerIndex 
-        && deleteRoomIndex + 1 === players[deleteRoomFromPlayerIndex].roomsArray.length) {
+      let addRoomButtonInActive = players[deleteRoomFromPlayerIndex].roomAdded; 
+      // if (activePlayerIndex === deleteRoomFromPlayerIndex // trenger bare sjekke for index == -1 ? 
+      //   && deleteRoomIndex + 1 === players[deleteRoomFromPlayerIndex].roomsArray.length) 
+      if (deleteRoomIndex === players[deleteRoomFromPlayerIndex].roomsArray.length){
           addRoomButtonInActive = false;
         }
         else {
-          addRoomButtonInActive = players[activePlayerIndex].roomAdded;
+          addRoomButtonInActive = players[deleteRoomFromPlayerIndex].roomAdded;
         }
       setPlayers(prevPlayers => prevPlayers.map(player => 
         deleteRoomFromPlayerIndex === players.indexOf(player) ? {
